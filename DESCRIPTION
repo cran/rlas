@@ -2,8 +2,8 @@ Package: rlas
 Type: Package
 Title: Read and Write 'las' and 'laz' Binary File Formats Used for
         Remote Sensing Data
-Version: 1.1.0
-Date: 2017-02-04
+Version: 1.1.1
+Date: 2017-03-14
 Authors@R: c(
     person("Jean-Romain", "Roussel", email = "jean-romain.roussel.1@ulaval.ca", role = c("aut", "cre", "cph")),
     person("Martin", "Isenburg", email = "", role = "cph", comment = "Is the author of the LASlib and LASzip libraries"),
@@ -17,10 +17,10 @@ License: GPL-3
 Depends: R (>= 3.0.0)
 Imports: data.table,Rcpp
 LazyData: true
-RoxygenNote: 6.0.0
+RoxygenNote: 6.0.1
 LinkingTo: Rcpp
 NeedsCompilation: yes
-Packaged: 2017-02-05 14:30:14 UTC; jr
+Packaged: 2017-03-15 16:37:36 UTC; jr
 Author: Jean-Romain Roussel [aut, cre, cph],
   Martin Isenburg [cph] (Is the author of the LASlib and LASzip
     libraries),
@@ -29,4 +29,4 @@ Author: Jean-Romain Roussel [aut, cre, cph],
   Florian De Boissieu [ctb] (Enable support of .lax file)
 Maintainer: Jean-Romain Roussel <jean-romain.roussel.1@ulaval.ca>
 Repository: CRAN
-Date/Publication: 2017-02-05 19:09:18
+Date/Publication: 2017-03-16 01:07:32

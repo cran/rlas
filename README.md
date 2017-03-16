@@ -1,5 +1,3 @@
-![CRAN](https://img.shields.io/badge/CRAN-1.1.0-brightgreen.svg) ![licence](https://img.shields.io/badge/Licence-GPL--3-blue.svg)
-
 R package to read and write `.las` and `.laz` binary files used to store LiDAR data.
 
 `rlas` relies on a modified version of the open source parts of [LAStools](https://github.com/LAStools/LAStools). `LASlib` and `LASzip` were modified to be compatible with `R`. The library can therefore be compiled into `R` without any complaints from `R CMD check`.

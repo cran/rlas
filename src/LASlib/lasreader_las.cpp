@@ -46,6 +46,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdexcept>
+#include <Rcpp.h>
 
 BOOL LASreaderLAS::open(const char* file_name, I32 io_buffer_size, BOOL peek_only)
 {
@@ -58,13 +59,13 @@ BOOL LASreaderLAS::open(const char* file_name, I32 io_buffer_size, BOOL peek_onl
   file = fopen(file_name, "rb");
   if (file == 0)
   {
-    throw std::runtime_error(std::string("ERROR: cannot open file '%s'")); //file_name
+    throw std::runtime_error(std::string("ERROR: cannot open file ") + std::string(file_name)); //
     return FALSE;
   }
 
   if (setvbuf(file, NULL, _IOFBF, io_buffer_size) != 0)
   {
-    throw std::runtime_error(std::string("WARNING: setvbuf() failed with buffer size %d")); //io_buffer_size
+    Rcpp::Rcerr << "WARNING: setvbuf() failed with buffer size " << io_buffer_size << std::endl;
   }
 
   // create input
@@ -311,7 +312,7 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
   {
     if (header.header_size < 235)
     {
-      throw std::runtime_error(std::string("WARNING: for LAS 1.%d header_size should at least be 235 but it is only %d")); //header.version_minor, header.header_size
+      Rcpp::Rcerr << "WARNING: for LAS 1." << header.version_minor << " header_size should at least be 235 but it is only " <<  header.header_size << std::endl;
       header.user_data_in_header_size = header.header_size - 227;
     }
     else
@@ -402,7 +403,7 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
 
       if (((int)header.offset_to_point_data - vlrs_size - header.header_size) < 54)
       {
-        throw std::runtime_error(std::string("WARNING: only %d bytes until point block after reading %d of %d vlrs. skipping remaining vlrs ...")); //(int)header.offset_to_point_data - vlrs_size - header.header_size, i, header.number_of_variable_length_records
+        Rcpp::Rcerr << "WARNING: only " << (int)header.offset_to_point_data - vlrs_size - header.header_size << " bytes until point block after reading " << i << " of " << header.number_of_variable_length_records << " vlrs. skipping remaining vlrs ..." << std::endl;
         header.number_of_variable_length_records = i;
         break;
       }
@@ -453,7 +454,7 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
 
       if (((int)header.offset_to_point_data - vlrs_size - header.header_size) < header.vlrs[i].record_length_after_header)
       {
-        throw std::runtime_error(std::string("WARNING: only %d bytes until point block when trying to read %d bytes into header.vlrs[%d].data")); //(int)header.offset_to_point_data - vlrs_size - header.header_size, header.vlrs[i].record_length_after_header, i
+        Rcpp::Rcerr << "WARNING: only " <<  (int)header.offset_to_point_data - vlrs_size - header.header_size << " bytes until point block when trying to read " << header.vlrs[i].record_length_after_header << " bytes into header.vlrs[" << i << "].data" << std::endl;
         header.vlrs[i].record_length_after_header = (int)header.offset_to_point_data - vlrs_size - header.header_size;
       }
 
@@ -702,7 +703,7 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
           {
             if (header.vlr_geo_keys)
             {
-              throw std::runtime_error(std::string("WARNING: variable length records contain more than one GeoKeyDirectoryTag"));
+              Rcpp::Rcerr << "WARNING: variable length records contain more than one GeoKeyDirectoryTag" << std::endl;
             }
             header.vlr_geo_keys = (LASvlr_geo_keys*)header.vlrs[i].data;
 
@@ -710,15 +711,15 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
 
             if (header.vlr_geo_keys->key_directory_version != 1)
             {
-              throw std::runtime_error(std::string("WARNING: wrong vlr_geo_keys->key_directory_version: %d != 1")); //header.vlr_geo_keys->key_directory_version
+              Rcpp::Rcerr << "WARNING: wrong vlr_geo_keys->key_directory_version: " << header.vlr_geo_keys->key_directory_version << " != 1" << std::endl;
             }
             if (header.vlr_geo_keys->key_revision != 1)
             {
-              throw std::runtime_error(std::string("WARNING: wrong vlr_geo_keys->key_revision: %d != 1")); //header.vlr_geo_keys->key_revision
+              Rcpp::Rcerr << "WARNING: wrong vlr_geo_keys->key_revision: " << header.vlr_geo_keys->key_revision << " != 1" << std::endl;
             }
             if (header.vlr_geo_keys->minor_revision != 0)
             {
-              throw std::runtime_error(std::string("WARNING: wrong vlr_geo_keys->minor_revision: %d != 0")); //header.vlr_geo_keys->minor_revision
+              Rcpp::Rcerr << "WARNING: wrong vlr_geo_keys->minor_revision: " << header.vlr_geo_keys->minor_revision << " != 0" << std::endl;
             }
             header.vlr_geo_key_entries = (LASvlr_key_entry*)&header.vlr_geo_keys[1];
           }
@@ -726,7 +727,7 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
           {
             if (header.vlr_geo_double_params)
             {
-              throw std::runtime_error(std::string("WARNING: variable length records contain more than one GeoF64ParamsTag"));
+              Rcpp::Rcerr << "WARNING: variable length records contain more than one GeoDoubleParamsTag" << std::endl;
             }
             header.vlr_geo_double_params = (F64*)header.vlrs[i].data;
           }
@@ -734,18 +735,18 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
           {
             if (header.vlr_geo_ascii_params)
             {
-              throw std::runtime_error(std::string("WARNING: variable length records contain more than one GeoAsciiParamsTag"));
+              Rcpp::Rcerr << "WARNING: variable length records contain more than one GeoAsciiParamsTag" << std::endl;
             }
             header.vlr_geo_ascii_params = (CHAR*)header.vlrs[i].data;
           }
           else if ((header.vlrs[i].record_id != 2111) && (header.vlrs[i].record_id != 2112)) // WKT OGC MATH TRANSFORM or WKT OGC COORDINATE SYSTEM
           {
-            throw std::runtime_error(std::string("WARNING: unknown LASF_Projection VLR with record_id %d.")); //header.vlrs[i].record_id
+            Rcpp::Rcerr << "WARNING: unknown LASF_Projection VLR with record_id " << header.vlrs[i].record_id << std::endl;
           }
         }
         else if (header.vlrs[i].record_id != 2112) // GeoAsciiParamsTag
         {
-          throw std::runtime_error(std::string("WARNING: no payload for LASF_Projection VLR with record_id %d.")); //header.vlrs[i].record_id
+          Rcpp::Rcerr << "WARNING: no payload for LASF_Projection VLR with record_id " << header.vlrs[i].record_id << std::endl;
         }
       }
       else if (strcmp(header.vlrs[i].user_id, "LASF_Spec") == 0)
@@ -756,7 +757,7 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
           {
             if (header.vlr_classification)
             {
-              throw std::runtime_error(std::string("WARNING: variable length records contain more than one ClassificationLookup"));
+              Rcpp::Rcerr << "WARNING: variable length records contain more than one ClassificationLookup" << std::endl;
             }
             header.vlr_classification = (LASvlr_classification*)header.vlrs[i].data;
           }
@@ -781,28 +782,28 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
             }
             if (header.vlr_wave_packet_descr[idx])
             {
-              throw std::runtime_error(std::string("WARNING: variable length records defines wave packet descr %d more than once")); //idx
+              Rcpp::Rcerr << "WARNING: variable length records defines wave packet descr " << idx << " more than once" << std::endl;
             }
             if (header.vlrs[i].record_length_after_header != 26)
             {
-              throw std::runtime_error(std::string("WARNING: variable length record payload for wave packet descr %d is %d instead of 26 bytes")); //idx, (I32)header.vlrs[i].record_length_after_header
+              Rcpp::Rcerr << "WARNING: variable length record payload for wave packet descr " << idx  << " is " << (I32)header.vlrs[i].record_length_after_header << " instead of 26 bytes" << std::endl;
             }
             header.vlr_wave_packet_descr[idx] = (LASvlr_wave_packet_descr*)header.vlrs[i].data;
             if ((header.vlr_wave_packet_descr[idx]->getBitsPerSample() != 8) && (header.vlr_wave_packet_descr[idx]->getBitsPerSample() != 16))
             {
-              throw std::runtime_error(std::string("WARNING: bits per sample for wave packet descr %d is %d instead of 8 or 16")); //idx, (I32)header.vlr_wave_packet_descr[idx]->getBitsPerSample()
+              Rcpp::Rcerr << "WARNING: bits per sample for wave packet descr " << idx << " is " << (I32)header.vlr_wave_packet_descr[idx]->getBitsPerSample() << " instead of 8 or 16" << std::endl;
             }
             if (header.vlr_wave_packet_descr[idx]->getNumberOfSamples() == 0)
             {
-              throw std::runtime_error(std::string("WARNING: number of samples for wave packet descr %d is zero")); //idx
+              Rcpp::Rcerr << "WARNING: number of samples for wave packet descr " << idx << " is zero"<< std::endl;
             }
             if (header.vlr_wave_packet_descr[idx]->getNumberOfSamples() > 8096)
             {
-              throw std::runtime_error(std::string("WARNING: number of samples of %u for wave packet descr %d is with unusually large")); //header.vlr_wave_packet_descr[idx]->getNumberOfSamples(), idx
+              Rcpp::Rcerr << "WARNING: number of samples of " << header.vlr_wave_packet_descr[idx]->getNumberOfSamples() << " for wave packet descr " << idx << " is with unusually large" << std::endl;
             }
             if (header.vlr_wave_packet_descr[idx]->getTemporalSpacing() == 0)
             {
-              throw std::runtime_error(std::string("WARNING: temporal spacing for wave packet descr %d is zero")); //idx
+              Rcpp::Rcerr << "WARNING: temporal spacing for wave packet descr " << idx << " is zero" << std::endl;
             }
 /*
             // fix for RiPROCESS export error
@@ -818,7 +819,7 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
         }
         else
         {
-          throw std::runtime_error(std::string("WARNING: no payload for LASF_Spec (not specification-conform)."));
+          Rcpp::Rcerr << "WARNING: no payload for LASF_Spec (not specification-conform)." << std::endl;
         }
       }
       else if ((strcmp(header.vlrs[i].user_id, "laszip encoded") == 0) || ((strcmp(header.vlrs[i].user_id, "LAStools") == 0) && (header.vlrs[i].record_id < 2000)) || (strcmp(header.vlrs[i].user_id, "lastools tile") == 0))
@@ -853,7 +854,7 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
     {
       if (!stream->isSeekable())
       {
-        throw std::runtime_error(std::string("WARNING: LAS %d.%d file has %d EVLRs but stream is not seekable ...")); //header.version_major, header.version_minor, header.number_of_extended_variable_length_records
+        Rcpp::Rcerr << "WARNING: LAS " << header.version_major << "." << header.version_minor << " file has " << header.number_of_extended_variable_length_records << " EVLRs but stream is not seekable ..." << std::endl;
       }
       else
       {
@@ -1093,7 +1094,7 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
             {
               if (header.vlr_geo_keys)
               {
-                throw std::runtime_error(std::string("WARNING: variable length records contain more than one GeoKeyDirectoryTag"));
+                Rcpp::Rcerr << "WARNING: variable length records contain more than one GeoKeyDirectoryTag" << std::endl;
               }
               header.vlr_geo_keys = (LASvlr_geo_keys*)header.evlrs[i].data;
 
@@ -1101,15 +1102,15 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
 
               if (header.vlr_geo_keys->key_directory_version != 1)
               {
-                throw std::runtime_error(std::string("WARNING: wrong vlr_geo_keys->key_directory_version: %d != 1")); //header.vlr_geo_keys->key_directory_version
+                Rcpp::Rcerr << "WARNING: wrong vlr_geo_keys->key_directory_version: " << header.vlr_geo_keys->key_directory_version << " != 1" << std::endl;
               }
               if (header.vlr_geo_keys->key_revision != 1)
               {
-                throw std::runtime_error(std::string("WARNING: wrong vlr_geo_keys->key_revision: %d != 1")); //header.vlr_geo_keys->key_revision
+                Rcpp::Rcerr << "WARNING: wrong vlr_geo_keys->key_revision: " << header.vlr_geo_keys->key_revision << " != 1" << std::endl;
               }
               if (header.vlr_geo_keys->minor_revision != 0)
               {
-                throw std::runtime_error(std::string("WARNING: wrong vlr_geo_keys->minor_revision: %d != 0")); //header.vlr_geo_keys->minor_revision
+               Rcpp::Rcerr << "WARNING: wrong vlr_geo_keys->minor_revision: " << header.vlr_geo_keys->minor_revision << " != 0" << std::endl;
               }
               header.vlr_geo_key_entries = (LASvlr_key_entry*)&header.vlr_geo_keys[1];
             }
@@ -1117,7 +1118,7 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
             {
               if (header.vlr_geo_double_params)
               {
-                throw std::runtime_error(std::string("WARNING: variable length records contain more than one GeoF64ParamsTag"));
+                Rcpp::Rcerr << "WARNING: variable length records contain more than one GeoDoubleParamsTag" << std::endl;
               }
               header.vlr_geo_double_params = (F64*)header.evlrs[i].data;
             }
@@ -1125,7 +1126,7 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
             {
               if (header.vlr_geo_ascii_params)
               {
-                throw std::runtime_error(std::string("WARNING: variable length records contain more than one GeoAsciiParamsTag"));
+                Rcpp::Rcerr << "WARNING: variable length records contain more than one GeoAsciiParamsTag" << std::endl;
               }
               header.vlr_geo_ascii_params = (CHAR*)header.evlrs[i].data;
             }
@@ -1136,7 +1137,7 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
             {
               if (header.vlr_classification)
               {
-                throw std::runtime_error(std::string("WARNING: variable length records contain more than one ClassificationLookup"));
+                Rcpp::Rcerr << "WARNING: variable length records contain more than one ClassificationLookup" << std::endl;
               }
               header.vlr_classification = (LASvlr_classification*)header.evlrs[i].data;
             }
@@ -1161,7 +1162,7 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
               }
               if (header.vlr_wave_packet_descr[idx])
               {
-                throw std::runtime_error(std::string("WARNING: extended variable length records defines wave packet descr %d more than once")); //idx
+               Rcpp::Rcerr << "WARNING: extended variable length records defines wave packet descr " << idx << " more than once" << std::endl;
               }
               header.vlr_wave_packet_descr[idx] = (LASvlr_wave_packet_descr*)header.evlrs[i].data;
             }
@@ -1185,9 +1186,9 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
   {
     if (!header.laszip->check())
     {
-      throw std::runtime_error(std::string("ERROR: %s")); //header.laszip->get_error()
-      throw std::runtime_error(std::string("       please upgrade to the latest release of LAStools (with LASzip)"));
-      throw std::runtime_error(std::string("       or contact 'martin.isenburg@rapidlasso.com' for assistance."));
+      throw std::runtime_error(std::string("ERROR: ") + std::string(header.laszip->get_error())); //
+      //throw std::runtime_error(std::string("       please upgrade to the latest release of LAStools (with LASzip)"));
+      //throw std::runtime_error(std::string("       or contact 'martin.isenburg@rapidlasso.com' for assistance."));
       return FALSE;
     }
   }
@@ -1199,7 +1200,7 @@ BOOL LASreaderLAS::open(ByteStreamIn* stream, BOOL peek_only)
     if (!header.laszip)
     {
       throw std::runtime_error(std::string("ERROR: this file was compressed with an experimental version of laszip"));
-      throw std::runtime_error(std::string("ERROR: please contact 'martin.isenburg@rapidlasso.com' for assistance."));
+      //throw std::runtime_error(std::string("ERROR: please contact 'martin.isenburg@rapidlasso.com' for assistance."));
       return FALSE;
     }
     header.point_data_format &= 127;
@@ -1308,11 +1309,11 @@ BOOL LASreaderLAS::read_point_default()
     {
       if (reader->error())
       {
-        throw std::runtime_error(std::string("ERROR: '%s' after %u of %u points")); //reader->error(), (U32)p_count, (U32)npoints
+        Rcpp::Rcerr << "ERROR: " << reader->error() << " after " << p_count << " of " <<  npoints << " points" << std::endl;
       }
       else
       {
-        throw std::runtime_error(std::string("WARNING: end-of-file after %u of %u points")); //(U32)p_count, (U32)npoints
+        Rcpp::Rcerr << "WARNING: end-of-file after " << p_count << " of " <<  npoints << " points" << std::endl;
       }
       return FALSE;
     }
@@ -1348,12 +1349,12 @@ BOOL LASreaderLAS::read_point_default()
     {
       if (reader->check_end() == FALSE)
       {
-        throw std::runtime_error(std::string("ERROR: '%s' when reaching end of encoding")); //reader->error()
+        throw std::runtime_error(std::string("ERROR: ") + std::string(reader->error()) + std::string(" when reaching end of encoding"));
         p_count--;
       }
       if (reader->warning())
       {
-        throw std::runtime_error(std::string("WARNING: '%s'")); //reader->warning()
+        Rcpp::Rcerr << "WARNING: " << reader->warning() << std::endl;
       }
       checked_end = TRUE;
     }
@@ -1469,14 +1470,14 @@ BOOL LASreaderLASrescale::open(ByteStreamIn* stream, BOOL peek_only)
       temp_i = I64_QUANTIZE(temp_f);
       if (I32_FITS_IN_RANGE(temp_i) == FALSE)
       {
-        throw std::runtime_error(std::string("WARNING: rescaling from %g to %g causes LAS integer overflow for min_x")); //orig_x_scale_factor, header.x_scale_factor
+        Rcpp::Rcerr << "WARNING: rescaling from " << orig_x_scale_factor<< " to " <<  header.x_scale_factor << " causes LAS integer overflow for min_x" << std::endl;
       }
       // make sure rescale does not cause integer overflow for max_x
       temp_f = (orig_x_scale_factor*quantizer.get_X(header.max_x))/header.x_scale_factor;
       temp_i = I64_QUANTIZE(temp_f);
       if (I32_FITS_IN_RANGE(temp_i) == FALSE)
       {
-        throw std::runtime_error(std::string("WARNING: rescaling from %g to %g causes LAS integer overflow for max_x")); //orig_x_scale_factor, header.x_scale_factor
+        Rcpp::Rcerr << "WARNING: rescaling from " << orig_x_scale_factor<< " to " <<  header.x_scale_factor << " causes LAS integer overflow for max_x" << std::endl;
       }
     }
 
@@ -1487,14 +1488,14 @@ BOOL LASreaderLASrescale::open(ByteStreamIn* stream, BOOL peek_only)
       temp_i = I64_QUANTIZE(temp_f);
       if (I32_FITS_IN_RANGE(temp_i) == FALSE)
       {
-        throw std::runtime_error(std::string("WARNING: rescaling from %g to %g causes LAS integer overflow for min_y")); //orig_y_scale_factor, header.y_scale_factor
+        Rcpp::Rcerr << "WARNING: rescaling from " << orig_y_scale_factor<< " to " <<  header.y_scale_factor << " causes LAS integer overflow for min_z" << std::endl;
       }
       // make sure rescale does not cause integer overflow for max_y
       temp_f = (orig_y_scale_factor*quantizer.get_Y(header.max_y))/header.y_scale_factor;
       temp_i = I64_QUANTIZE(temp_f);
       if (I32_FITS_IN_RANGE(temp_i) == FALSE)
       {
-        throw std::runtime_error(std::string("WARNING: rescaling from %g to %g causes LAS integer overflow for max_y")); //orig_y_scale_factor, header.y_scale_factor
+        Rcpp::Rcerr << "WARNING: rescaling from " << orig_y_scale_factor<< " to " <<  header.y_scale_factor << " causes LAS integer overflow for max_y" << std::endl;
       }
     }
 
@@ -1505,14 +1506,14 @@ BOOL LASreaderLASrescale::open(ByteStreamIn* stream, BOOL peek_only)
       temp_i = I64_QUANTIZE(temp_f);
       if (I32_FITS_IN_RANGE(temp_i) == FALSE)
       {
-        throw std::runtime_error(std::string("WARNING: rescaling from %g to %g causes LAS integer overflow for min_z")); //orig_z_scale_factor, header.z_scale_factor
+        Rcpp::Rcerr << "WARNING: rescaling from " << orig_z_scale_factor<< " to " <<  header.z_scale_factor << " causes LAS integer overflow for min_z" << std::endl;
       }
       // make sure rescale does not cause integer overflow for max_z
       temp_f = (orig_z_scale_factor*quantizer.get_Z(header.max_z))/header.z_scale_factor;
       temp_i = I64_QUANTIZE(temp_f);
       if (I32_FITS_IN_RANGE(temp_i) == FALSE)
       {
-        throw std::runtime_error(std::string("WARNING: rescaling from %g to %g causes LAS integer overflow for max_z")); //orig_z_scale_factor, header.z_scale_factor
+        Rcpp::Rcerr << "WARNING: rescaling from " << orig_z_scale_factor<< " to " <<  header.z_scale_factor << " causes LAS integer overflow for max_z" << std::endl;
       }
     }
   }
@@ -1609,14 +1610,14 @@ BOOL LASreaderLASreoffset::open(ByteStreamIn* stream, BOOL peek_only)
     temp_i = I64_QUANTIZE(temp_f);
     if (I32_FITS_IN_RANGE(temp_i) == FALSE)
     {
-      throw std::runtime_error(std::string("WARNING: reoffsetting from %g to %g causes LAS integer overflow for min_x")); //orig_x_offset, header.x_offset
+      Rcpp::Rcerr << "WARNING: reoffsetting from " << orig_x_offset<< " to " <<  header.x_offset << " causes LAS integer overflow for min_x" << std::endl;
     }
     // make sure reoffset_x does not cause integer overflow for max_x
     temp_f = ((header.x_scale_factor*quantizer.get_X(header.max_x))+orig_x_offset-header.x_offset)/header.x_scale_factor;
     temp_i = I64_QUANTIZE(temp_f);
     if (I32_FITS_IN_RANGE(temp_i) == FALSE)
     {
-      throw std::runtime_error(std::string("WARNING: reoffsetting from %g to %g causes LAS integer overflow for max_x")); //orig_x_offset, header.x_offset
+      Rcpp::Rcerr << "WARNING: reoffsetting from " << orig_x_offset<< " to " <<  header.x_offset << " causes LAS integer overflow for max_x" << std::endl;
     }
   }
 
@@ -1627,14 +1628,14 @@ BOOL LASreaderLASreoffset::open(ByteStreamIn* stream, BOOL peek_only)
     temp_i = I64_QUANTIZE(temp_f);
     if (I32_FITS_IN_RANGE(temp_i) == FALSE)
     {
-      throw std::runtime_error(std::string("WARNING: reoffsetting from %g to %g causes LAS integer overflow for min_y")); //orig_y_offset, header.y_offset
+      Rcpp::Rcerr << "WARNING: reoffsetting from " << orig_y_offset<< " to " <<  header.y_offset << " causes LAS integer overflow for min_y" << std::endl;
     }
     // make sure reoffset_y does not cause integer overflow for max_y
     temp_f = ((header.y_scale_factor*quantizer.get_Y(header.max_y))+orig_y_offset-header.y_offset)/header.y_scale_factor;
     temp_i = I64_QUANTIZE(temp_f);
     if (I32_FITS_IN_RANGE(temp_i) == FALSE)
     {
-      throw std::runtime_error(std::string("WARNING: reoffsetting from %g to %g causes LAS integer overflow for max_y")); //orig_y_offset, header.y_offset
+      Rcpp::Rcerr << "WARNING: reoffsetting from " << orig_y_offset<< " to " <<  header.y_offset << " causes LAS integer overflow for max_y" << std::endl;
     }
   }
 
@@ -1765,7 +1766,7 @@ BOOL LASreaderLASrescalereoffset::open(ByteStreamIn* stream, BOOL peek_only)
     temp_i = I64_QUANTIZE(temp_f);
     if (I32_FITS_IN_RANGE(temp_i) == FALSE)
     {
-      throw std::runtime_error(std::string("WARNING: rescaling from %g to %g and reoffsetting from %g to %g causes LAS integer overflow for min_x")); //orig_x_scale_factor, header.x_scale_factor, orig_x_offset, header.x_offset
+      Rcpp::Rcerr << "WARNING: rescaling from " << orig_x_scale_factor<< " to " <<  header.x_scale_factor << " and reoffsetting from " << orig_x_offset << " to " << header.x_offset << " causes LAS integer overflow for min_x" << std::endl;
     }
 
     // make sure rescale & reoffset do not cause integer overflow for max_x
@@ -1780,10 +1781,9 @@ BOOL LASreaderLASrescalereoffset::open(ByteStreamIn* stream, BOOL peek_only)
     temp_i = I64_QUANTIZE(temp_f);
     if (I32_FITS_IN_RANGE(temp_i) == FALSE)
     {
-      throw std::runtime_error(std::string("WARNING: rescaling from %g to %g and reoffsetting from %g to %g causes LAS integer overflow for max_x")); //orig_x_scale_factor, header.x_scale_factor, orig_x_offset, header.x_offset
+      Rcpp::Rcerr << "WARNING: rescaling from " << orig_x_scale_factor<< " to " <<  header.x_scale_factor << " and reoffsetting from " << orig_x_offset << " to " << header.x_offset << " causes LAS integer overflow for max_x" << std::endl;
     }
   }
-
   if (reoffset_y || rescale_y)
   {
     // make sure rescale & reoffset do not cause integer overflow for min_y
@@ -1798,7 +1798,7 @@ BOOL LASreaderLASrescalereoffset::open(ByteStreamIn* stream, BOOL peek_only)
     temp_i = I64_QUANTIZE(temp_f);
     if (I32_FITS_IN_RANGE(temp_i) == FALSE)
     {
-      throw std::runtime_error(std::string("WARNING: rescaling from %g to %g and reoffsetting from %g to %g causes LAS integer overflow for min_y")); //orig_y_scale_factor, header.y_scale_factor, orig_y_offset, header.y_offset
+      Rcpp::Rcerr << "WARNING: rescaling from " << orig_y_scale_factor<< " to " <<  header.y_scale_factor << " and reoffsetting from " << orig_y_offset << " to " << header.y_offset << " causes LAS integer overflow for min_y" << std::endl;
     }
 
     // make sure rescale & reoffset do not cause integer overflow for max_y
@@ -1813,7 +1813,7 @@ BOOL LASreaderLASrescalereoffset::open(ByteStreamIn* stream, BOOL peek_only)
     temp_i = I64_QUANTIZE(temp_f);
     if (I32_FITS_IN_RANGE(temp_i) == FALSE)
     {
-      throw std::runtime_error(std::string("WARNING: rescaling from %g to %g and reoffsetting from %g to %g causes LAS integer overflow for max_y")); //orig_y_scale_factor, header.y_scale_factor, orig_y_offset, header.y_offset
+      Rcpp::Rcerr << "WARNING: rescaling from " << orig_y_scale_factor<< " to " <<  header.y_scale_factor << " and reoffsetting from " << orig_y_offset << " to " << header.y_offset << " causes LAS integer overflow for max_y" << std::endl;
     }
   }
 
@@ -1831,7 +1831,7 @@ BOOL LASreaderLASrescalereoffset::open(ByteStreamIn* stream, BOOL peek_only)
     temp_i = I64_QUANTIZE(temp_f);
     if (I32_FITS_IN_RANGE(temp_i) == FALSE)
     {
-      throw std::runtime_error(std::string("WARNING: rescaling from %g to %g and reoffsetting from %g to %g causes LAS integer overflow for min_z")); //orig_z_scale_factor, header.z_scale_factor, orig_z_offset, header.z_offset
+      Rcpp::Rcerr << "WARNING: rescaling from " << orig_z_scale_factor<< " to " <<  header.z_scale_factor << " and reoffsetting from " << orig_z_offset << " to " << header.z_offset << " causes LAS integer overflow for min_z" << std::endl;
     }
 
     // make sure rescale & reoffset do not cause integer overflow for max_z
@@ -1846,7 +1846,7 @@ BOOL LASreaderLASrescalereoffset::open(ByteStreamIn* stream, BOOL peek_only)
     temp_i = I64_QUANTIZE(temp_f);
     if (I32_FITS_IN_RANGE(temp_i) == FALSE)
     {
-      throw std::runtime_error(std::string("WARNING: rescaling from %g to %g and reoffsetting from %g to %g causes LAS integer overflow for max_z")); //orig_z_scale_factor, header.z_scale_factor, orig_z_offset, header.z_offset
+      Rcpp::Rcerr << "WARNING: rescaling from " << orig_z_scale_factor<< " to " <<  header.z_scale_factor << " and reoffsetting from " << orig_z_offset << " to " << header.z_offset << " causes LAS integer overflow for max_z" << std::endl;
     }
   }
 
