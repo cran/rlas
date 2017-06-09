@@ -24,8 +24,6 @@
 
   CHANGE HISTORY:
 
-    20 December 2016 -- by Jean-Romain Roussel -- L133 force function to return true and removed stdout
-
      1 October 2011 -- added 64 bit file support in MSVC 6.0 at McCafe at Hbf Linz
     10 January 2011 -- licensing change for LGPL release and liblas integration
     12 December 2010 -- created from ByteStreamOutFile after Howard got pushy (-;

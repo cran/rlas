@@ -90,7 +90,8 @@ void laswriter(CharacterVector file,
     header.file_source_ID = (int)LASheader["File Source ID"];
     header.version_major = (int)LASheader["Version Major"];
     header.version_minor = (int)LASheader["Version Minor"];
-    header.file_creation_day =  (int)LASheader["File Creation Day of Year"];
+    header.header_size = (int)LASheader["Header Size"];
+    header.offset_to_point_data = header.header_size; // No extra offset since I don't know how to deal with the data in the offset.
     header.file_creation_year = (int)LASheader["File Creation Year"];
     header.point_data_format = (int)LASheader["Point Data Format ID"];
     header.x_scale_factor = (double)LASheader["X scale factor"];
@@ -117,9 +118,9 @@ void laswriter(CharacterVector file,
 
     for(int i = 0 ; i < X.length() ; i++)
     {
-      p.set_X((X[i]-header.x_offset)/header.x_scale_factor );
-      p.set_Y((Y[i]-header.y_offset)/header.y_scale_factor );
-      p.set_Z((Z[i]-header.z_offset)/header.z_scale_factor );
+      p.set_x(X[i]);
+      p.set_y(Y[i]);
+      p.set_z(Z[i]);
 
       if(I.length() > 0){ p.set_intensity((U16)I[i]); }
       if(RN.length() > 0){ p.set_return_number((U8)RN[i]); }

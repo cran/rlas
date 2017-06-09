@@ -24,8 +24,6 @@
 
   CHANGE HISTORY:
 
-    20 December 2016 -- by Jean-Romain Roussel -- L62-68 use int64_t types
-
     28 October 2015 -- adding DLL bindings via 'COMPILE_AS_DLL' and 'USE_AS_DLL'
     10 January 2011 -- licensing change for LGPL release and libLAS integration
     13 July 2005 -- created after returning with many mosquito bites from OBX
@@ -35,7 +33,8 @@
 #ifndef MYDEFS_HPP
 #define MYDEFS_HPP
 
-#include <stdint.h>
+#define STRICT_R_HEADERS
+#include <R.h>
 
 #ifndef _WIN32
 #define LASLIB_DLL
@@ -59,13 +58,13 @@ typedef unsigned int       U32;
 typedef unsigned short     U16;
 typedef unsigned char      U8;
 
-//#if defined(_WIN32) && ! defined (__MINGW32__) // 64 byte integer under Windows
-//typedef unsigned __int64   U64;
-//typedef __int64            I64;
-//#else                                          // 64 byte integer elsewhere ...
-typedef uint64_t           U64;
-typedef int64_t            I64;
-//#endif
+#if defined(_WIN32) && ! defined (__MINGW32__) // 64 byte integer under Windows
+typedef unsigned __int64   U64;
+typedef __int64            I64;
+#else                                          // 64 byte integer elsewhere ...
+typedef unsigned long long U64;
+typedef long long          I64;
+#endif
 
 typedef float              F32;
 typedef double             F64;
@@ -158,6 +157,7 @@ typedef union U64I64F64 { U64 u64; I64 i64; F64 f64; } U64I64F64;
 #define F64_IS_FINITE(n) ((F64_MIN < (n)) && ((n) < F64_MAX))
 
 #define U32_ZERO_BIT_0(n) (((n)&(U32)0xFFFFFFFE))
+#define U32_ZERO_BIT_0_1(n) (((n)&(U32)0xFFFFFFFC))
 
 #ifndef FALSE
 #define FALSE   0

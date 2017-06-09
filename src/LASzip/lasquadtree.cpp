@@ -24,12 +24,11 @@
 
   CHANGE HISTORY:
 
-    20 December 2016 -- by Jean-Romain Roussel -- Change fprint(stderr, ...), raise an exeption
-
     see corresponding header file
 
 ===============================================================================
 */
+
 #include "lasquadtree.hpp"
 
 #include "bytestreamin.hpp"
@@ -37,14 +36,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#if defined(__clang__)
-  #include <string>
-#else
-  #include <string.h>
-#endif
-
-#include <stdexcept>
+#include <string.h>
 
 #include <vector>
 using namespace std;
@@ -598,33 +590,33 @@ BOOL LASquadtree::read(ByteStreamIn* stream)
   char signature[4];
   try { stream->getBytes((U8*)signature, 4); } catch(...)
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): reading LASspatial signature"));
+    REprintf("ERROR (LASquadtree): reading LASspatial signature\n");
     return FALSE;
   }
   if (strncmp(signature, "LASS", 4) != 0)
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): wrong LASspatial signature %4s instead of 'LASS'")); //signature
+    REprintf("ERROR (LASquadtree): wrong LASspatial signature %4s instead of 'LASS'\n", signature);
     return FALSE;
   }
   U32 type;
   try { stream->getBytes((U8*)&type, 4); } catch(...)
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): reading LASspatial type"));
+    REprintf("ERROR (LASquadtree): reading LASspatial type\n");
     return 0;
   }
   if (type != LAS_SPATIAL_QUAD_TREE)
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): unknown LASspatial type %u")); //type
+    REprintf("ERROR (LASquadtree): unknown LASspatial type %u\n", type);
     return 0;
   }
   try { stream->getBytes((U8*)signature, 4); } catch(...)
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): reading signature"));
+    REprintf("ERROR (LASquadtree): reading signature\n");
     return FALSE;
   }
   if (strncmp(signature, "LASQ", 4) != 0)
   {
-//    throw std::runtime_error(std::string("ERROR (LASquadtree): wrong signature %4s instead of 'LASV'")); //signature
+//    REprintf("ERROR (LASquadtree): wrong signature %4s instead of 'LASV'\n", signature);
 //    return FALSE;
     levels = ((U32*)signature)[0];
   }
@@ -633,45 +625,45 @@ BOOL LASquadtree::read(ByteStreamIn* stream)
     U32 version;
     try { stream->get32bitsLE((U8*)&version); } catch(...)
     {
-      throw std::runtime_error(std::string("ERROR (LASquadtree): reading version"));
+      REprintf("ERROR (LASquadtree): reading version\n");
       return FALSE;
     }
     try { stream->get32bitsLE((U8*)&levels); } catch(...)
     {
-      throw std::runtime_error(std::string("ERROR (LASquadtree): reading levels"));
+      REprintf("ERROR (LASquadtree): reading levels\n");
       return FALSE;
     }
   }
   U32 level_index;
   try { stream->get32bitsLE((U8*)&level_index); } catch(...)
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): reading level_index"));
+    REprintf("ERROR (LASquadtree): reading level_index\n");
     return FALSE;
   }
   U32 implicit_levels;
   try { stream->get32bitsLE((U8*)&implicit_levels); } catch(...)
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): reading implicit_levels"));
+    REprintf("ERROR (LASquadtree): reading implicit_levels\n");
     return FALSE;
   }
   try { stream->get32bitsLE((U8*)&min_x); } catch(...)
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): reading min_x"));
+    REprintf("ERROR (LASquadtree): reading min_x\n");
     return FALSE;
   }
   try { stream->get32bitsLE((U8*)&max_x); } catch(...)
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): reading max_x"));
+    REprintf("ERROR (LASquadtree): reading max_x\n");
     return FALSE;
   }
   try { stream->get32bitsLE((U8*)&min_y); } catch(...)
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): reading min_y"));
+    REprintf("ERROR (LASquadtree): reading min_y\n");
     return FALSE;
   }
   try { stream->get32bitsLE((U8*)&max_y); } catch(...)
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): reading max_y"));
+    REprintf("ERROR (LASquadtree): reading max_y\n");
     return FALSE;
   }
   return TRUE;
@@ -691,65 +683,65 @@ BOOL LASquadtree::write(ByteStreamOut* stream) const
 
   if (!stream->putBytes((U8*)"LASS", 4))
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): writing LASspatial signature"));
+    REprintf("ERROR (LASquadtree): writing LASspatial signature\n");
     return FALSE;
   }
 
   U32 type = LAS_SPATIAL_QUAD_TREE;
   if (!stream->put32bitsLE((U8*)&type))
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): writing LASspatial type %u")); //type
+    REprintf("ERROR (LASquadtree): writing LASspatial type %u\n", type);
     return FALSE;
   }
 
   if (!stream->putBytes((U8*)"LASQ", 4))
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): writing signature"));
+    REprintf("ERROR (LASquadtree): writing signature\n");
     return FALSE;
   }
 
   U32 version = 0;
   if (!stream->put32bitsLE((U8*)&version))
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): writing version"));
+    REprintf("ERROR (LASquadtree): writing version\n");
     return FALSE;
   }
 
   if (!stream->put32bitsLE((U8*)&levels))
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): writing levels %u")); //levels
+    REprintf("ERROR (LASquadtree): writing levels %u\n", levels);
     return FALSE;
   }
   U32 level_index = 0;
   if (!stream->put32bitsLE((U8*)&level_index))
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): writing level_index %u")); //level_index
+    REprintf("ERROR (LASquadtree): writing level_index %u\n", level_index);
     return FALSE;
   }
   U32 implicit_levels = 0;
   if (!stream->put32bitsLE((U8*)&implicit_levels))
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): writing implicit_levels %u")); //implicit_levels
+    REprintf("ERROR (LASquadtree): writing implicit_levels %u\n", implicit_levels);
     return FALSE;
   }
   if (!stream->put32bitsLE((U8*)&min_x))
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): writing min_x %g")); //min_x
+    REprintf("ERROR (LASquadtree): writing min_x %g\n", min_x);
     return FALSE;
   }
   if (!stream->put32bitsLE((U8*)&max_x))
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): writing max_x %g")); //max_x
+    REprintf("ERROR (LASquadtree): writing max_x %g\n", max_x);
     return FALSE;
   }
   if (!stream->put32bitsLE((U8*)&min_y))
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): writing min_y %g")); //min_y
+    REprintf("ERROR (LASquadtree): writing min_y %g\n", min_y);
     return FALSE;
   }
   if (!stream->put32bitsLE((U8*)&max_y))
   {
-    throw std::runtime_error(std::string("ERROR (LASquadtree): writing max_y %g")); //max_y
+    REprintf("ERROR (LASquadtree): writing max_y %g\n", max_y);
     return FALSE;
   }
   return TRUE;
@@ -1541,7 +1533,7 @@ BOOL LASquadtree::setup(F64 bb_min_x, F64 bb_max_x, F64 bb_min_y, F64 bb_max_y, 
 
   if (cells_x == 0 || cells_y == 0)
   {
-    throw std::runtime_error(std::string("ERROR: cells_x %d cells_y %d")); //cells_x, cells_y
+    REprintf( "ERROR: cells_x %d cells_y %d\n", cells_x, cells_y);
     return FALSE;
   }
 
@@ -1592,7 +1584,7 @@ BOOL LASquadtree::setup(F64 bb_min_x, F64 bb_max_x, F64 bb_min_y, F64 bb_max_y, 
 
   if (cells_x == 0 || cells_y == 0)
   {
-    throw std::runtime_error(std::string("ERROR: cells_x %d cells_y %d")); //cells_x, cells_y
+    REprintf( "ERROR: cells_x %d cells_y %d\n", cells_x, cells_y);
     return FALSE;
   }
 
