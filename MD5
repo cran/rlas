@@ -1,12 +1,12 @@
 8f0e2cd40e05189ec81232da84bd6e1a *COPYING
-b3f820df55f58228880db51af60859d8 *DESCRIPTION
+d4682ffc2cd7eb4e4cc0e5ab1ed28710 *DESCRIPTION
 f2c59520fe1a03309632daf7596e7c50 *NAMESPACE
-c4585e036a747095582a44f3a415ea62 *NEWS.md
-b43bac98804090002e0d17214e2e86ab *R/RcppExports.R
+8666d8386c7588303ff0ea49f9afa79c *NEWS.md
+fb15deb9dbb6bb21c2ec4a1a19eb1898 *R/RcppExports.R
 95db931abcc79d48a8eb63341461854d *R/readLAS.r
 bafee144779962e487558c929e0460f9 *R/writeLAS.r
 5698cf65652fe4eb1e9573c4be4550be *R/zzz.r
-946c9e09270d9dc27de7cec1901916ba *README.md
+3a8486198785b1bfb58533e130a543ea *README.md
 18b8f25b41ce57219c112ef9096cc16e *inst/extdata/example.laz
 f87ee82fa4792b7413f81624e9a2f966 *man/readlasdata.Rd
 0858b5c51c89c2309e308118ed938207 *man/readlasheader.Rd
@@ -132,5 +132,5 @@ a5b64d73f71644fceead8fc687fa60db *src/include/LASzip/laszip_common_v3.hpp
 7bec48b5eb1e1e3d02f39c27d4b2fbee *src/include/LASzip/laszipper.hpp
 cf1bde1a437a799850de2d170df0944a *src/include/LASzip/mydefs.hpp
 aede106fb3e70cfff8bee942b4ddc8b0 *src/init.c
-f9dcafaf130803431b50ca76d3230a2b *src/readLAS.cpp
+ba667f7703f65e1b57d0fde56aad05b2 *src/readLAS.cpp
 4d26803fa716d9960f343c7e4e4ca7b8 *src/writeLAS.cpp
