@@ -46,17 +46,18 @@
 #' the number of points of interest. Then it allocates the necessary amount of memory and reads the file
 #' a second time, and stores the points of interest in the computer's memory (RAM).
 #'
-#' @param file filepath character string to the .las or .laz file
-#' @param Intensity logical. do you want to load the Intensity field? default: TRUE
-#' @param ReturnNumber logical. do you want to load the ReturnNumber field? default: TRUE
-#' @param NumberOfReturns logical. do you want to load the NumberOfReturns field? default: TRUE
-#' @param ScanDirectionFlag logical. do you want to load the ScanDirectionFlag field? default: TRUE
-#' @param EdgeOfFlightline logical. do you want to load the EdgeOfFlightline field? default: TRUE
-#' @param Classification logical. do you want to load the Classification field? default: TRUE
-#' @param ScanAngle logical. do you want to load the ScanAngle field? default: TRUE
-#' @param UserData logical. do you want to load the UserData field? default: TRUE
-#' @param PointSourceID logical. do you want to load the PointSourceID field? default: TRUE
-#' @param RGB logical. do you want to load R,G and B fields? default: TRUE
+#' @param files filepath character string to the .las or .laz files
+#' @param i logical. do you want to load the Intensity field? default: TRUE
+#' @param r logical. do you want to load the ReturnNumber field? default: TRUE
+#' @param n logical. do you want to load the NumberOfReturns field? default: TRUE
+#' @param d logical. do you want to load the ScanDirectionFlag field? default: TRUE
+#' @param e logical. do you want to load the EdgeOfFlightline field? default: TRUE
+#' @param c logical. do you want to load the Classification field? default: TRUE
+#' @param a logical. do you want to load the ScanAngle field? default: TRUE
+#' @param u logical. do you want to load the UserData field? default: TRUE
+#' @param p logical. do you want to load the PointSourceID field? default: TRUE
+#' @param rgb logical. do you want to load R,G and B fields? default: TRUE
+#' @param t logical. do you want to load gpstime fields? default: TRUE
 #' @param filter character. filter data while reading the file (streaming filter) without
 #' allocating any useless memory. (see Details).
 #' @importFrom Rcpp sourceCpp
@@ -70,33 +71,51 @@
 #' lasdata <- readlasdata(lazfile, filter = "-keep_first")
 #' lasdata <- readlasdata(lazfile, filter = "-drop_intensity_below 80")
 #' @useDynLib rlas, .registration = TRUE
-readlasdata = function(file,
-                       Intensity = TRUE,
-                       ReturnNumber = TRUE,
-                       NumberOfReturns = TRUE,
-                       ScanDirectionFlag = TRUE,
-                       EdgeOfFlightline = TRUE,
-                       Classification = TRUE,
-                       ScanAngle = TRUE,
-                       UserData = TRUE,
-                       PointSourceID = TRUE,
-                       RGB = TRUE,
-                       filter = "")
+readlasdata = function(files, i = TRUE, r = TRUE, n = TRUE, d = TRUE, e = TRUE, c = TRUE, a = TRUE, u = TRUE, p = TRUE, rgb = TRUE, t = TRUE, filter = "")
 {
-  valid = file.exists(file)
-  islas = tools::file_ext(file) %in% c("las", "laz", "LAS", "LAZ")
-  file = normalizePath(file)
+  check_file(files)
+  check_filter(filter)
 
-  if(!valid)
-    stop("File not found", call. = F)
+  files = normalizePath(files)
 
-  if(!islas)
-    stop("File not supported", call. = F)
+  if (filter == "")
+    data = lasdatareader(files, i, r, n, d, e, c, a, u, p, rgb, t)
+  else
+    data = lasdatastreamer(files, "", filter, i, r, n, d, e, c, a, u, p, rgb, t, numeric(0), numeric(0))
 
-  if(!is.character(filter))
-    stop("Incorrect argument 'filter'", call. = F)
+  data.table::setDT(data)
 
-  data = lasdatareader(file, Intensity, ReturnNumber, NumberOfReturns, ScanDirectionFlag, EdgeOfFlightline, Classification, ScanAngle, UserData, PointSourceID, RGB, filter)
+  return(data)
+}
+
+streamlasdata = function(ifiles, i = TRUE, r = TRUE, n = TRUE, d = TRUE, e = TRUE, c = TRUE, a = TRUE, u = TRUE, p = TRUE, rgb = TRUE, t = TRUE, filter = "", ofile = "", xpoly = NULL, ypoly = NULL)
+{
+  check_file(ifiles)
+  check_filter(filter)
+
+  ifiles = normalizePath(ifiles)
+
+  if (ofile != "")
+    ofile  = normalizePath(ofile)
+
+  if (!is.null(xpoly) & !is.null(ypoly))
+  {
+    if (length(xpoly) != length(ypoly))
+      stop("Invalide polygon", call. = FALSE)
+
+    xmin <- min(xpoly)-0.5
+    xmax <- max(xpoly)+0.5
+    ymin <- min(ypoly)-0.5
+    ymax <- max(ypoly)+0.5
+
+    filter <- paste("-inside", xmin, ymin, xmax, ymax)
+  }
+
+
+  data = lasdatastreamer(ifiles, ofile, filter, i, r, n, d, e, c, a, u, p, rgb, t, xpoly, ypoly)
+
+  if (ofile != "")
+    return(invisible())
 
   data.table::setDT(data)
 
@@ -129,4 +148,23 @@ readlasheader = function(file)
   data = lasheaderreader(file)
 
   return(data)
+}
+
+check_file = function(file)
+{
+  valid = file.exists(file)
+  islas = tools::file_ext(file) %in% c("las", "laz", "LAS", "LAZ")
+  file = normalizePath(file)
+
+  if (!all(valid))
+    stop("File not found", call. = F)
+
+  if (!all(islas))
+    stop("File not supported", call. = F)
+}
+
+check_filter = function(filter)
+{
+  if (!is.character(filter))
+    stop("Incorrect argument 'filter'", call. = F)
 }

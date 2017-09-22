@@ -1,4 +1,17 @@
-### rlas v1.1.4 (Release date: 2017-06-26)
+### rlas v1.1.5 (Release date: 2017-10-23)
+
+#### NEW FEATURES
+
+* `writelax` enable for writing LAX files.
+* `readlasdata` enable for reading several files.
+* Moved the headers in `inst/include` to make the lib callable from other packages
+
+#### BUG FIXES:
+
+* The las files were read twice every time. `lasdatareader` is twice faster reading files only once
+* `readlasdata` enable to load or not the gpstime field.
+
+### rlas v1.1.4 (Release date: 2017-07-26)
 
 #### BUG FIXES:
 
