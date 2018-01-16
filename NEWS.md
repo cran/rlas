@@ -1,3 +1,14 @@
+### rlas v1.1.6 (In development)
+
+#### NEW FEATURES
+
+* new straighforward C++ class `RLASstreamer` to use `rlas`at the C++ level.
+* Support of extra bytes attributes in `readlasdata`
+
+#### BUG FIXES:
+
+* Fix some internal features which cannot be used by regular users. Does not affect users.
+
 ### rlas v1.1.5 (Release date: 2017-10-23)
 
 #### NEW FEATURES
