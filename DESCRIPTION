@@ -2,8 +2,8 @@ Package: rlas
 Type: Package
 Title: Read and Write 'las' and 'laz' Binary File Formats Used for
         Remote Sensing Data
-Version: 1.1.8
-Date: 2018-01-15
+Version: 1.1.9
+Date: 2018-01-17
 Authors@R: c(
     person("Jean-Romain", "Roussel", email = "jean-romain.roussel.1@ulaval.ca", role = c("aut", "cre", "cph")),
     person("Martin", "Isenburg", email = "", role = "cph", comment = "Is the author of the LASlib and LASzip libraries"),
@@ -21,7 +21,7 @@ RoxygenNote: 6.0.1
 LinkingTo: Rcpp
 Suggests: testthat
 NeedsCompilation: yes
-Packaged: 2018-01-15 20:46:07 UTC; jr
+Packaged: 2018-01-17 21:42:16 UTC; jr
 Author: Jean-Romain Roussel [aut, cre, cph],
   Martin Isenburg [cph] (Is the author of the LASlib and LASzip
     libraries),
@@ -31,4 +31,4 @@ Author: Jean-Romain Roussel [aut, cre, cph],
     attributes)
 Maintainer: Jean-Romain Roussel <jean-romain.roussel.1@ulaval.ca>
 Repository: CRAN
-Date/Publication: 2018-01-16 08:54:27 UTC
+Date/Publication: 2018-01-18 10:50:02 UTC
