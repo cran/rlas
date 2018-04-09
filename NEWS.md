@@ -1,3 +1,18 @@
+### rlas v1.2.0 (Release date: 2018-04-10)
+
+#### NEW FEATURES
+
+* Enables the support of files with point data formats 6, 7 and 8 in read mode.
+* Enables the support of extra bytes attributes in write mode.
+* New function `read.las` that replaces `readlasdata`, which is now deprecated. The selection of the field to be loaded is made easier by use of string syntax instead of multiple logical parameters.
+* New function `read.lasheader` that replaces `readlasheader`, which is now deprecated. This change was made only for naming consistency.
+* New functions `header_*` that allows the user to make valid headers and thus properly write the las files.
+* New functions `check_*` that check data integrity.
+
+#### BUG FIXES:
+
+* Fix [[#9](https://github.com/Jean-Romain/rlas/issues/9)] with valgrind: uninitialized value(s)
+
 ### rlas v1.1.9 (Release date: 2018-01-17)
 
 #### BUG FIXES:
@@ -13,20 +28,20 @@
 
 #### BUG FIXES:
 
-* Fix some internal features which cannot be used by regular users. Does not affect users.
+* Fix some internal features that cannot be used by regular users. Does not affect users.
 
 ### rlas v1.1.5 (Release date: 2017-10-23)
 
 #### NEW FEATURES
 
-* `writelax` enable for writing LAX files.
-* `readlasdata` enable for reading several files.
+* `writelax` enabled for writing LAX files.
+* `readlasdata` enabled for reading several files.
 * Moved the headers in `inst/include` to make the lib callable from other packages
 
 #### BUG FIXES:
 
-* The las files were read twice every time. `lasdatareader` is twice faster reading files only once
-* `readlasdata` enable to load or not the gpstime field.
+* The las files were read twice every time. `lasdatareader` is twice as fast since it reads files only once
+* `readlasdata` enables loading (or not) of the gpstime field.
 
 ### rlas v1.1.4 (Release date: 2017-07-26)
 
@@ -66,8 +81,8 @@
 
 #### NEW FEATURES
 
-* `readlasdata()` gains a parameter `filter` enabling to use memory optimized streaming filters.
-* `readlasdata()` support .lax file for faster filter (thanks to Florian de Boissieu [#2](https://github.com/Jean-Romain/rlas/pull/2))
+* `readlasdata()` gains a parameter `filter` enabling use of memory-optimized streaming filters.
+* `readlasdata()` supports .lax files for faster filter (thanks to Florian de Boissieu [#2](https://github.com/Jean-Romain/rlas/pull/2))
 
 #### OTHER CHANGES
 

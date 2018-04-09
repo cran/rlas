@@ -156,46 +156,50 @@ void RLASstreamer::initialize()
 void RLASstreamer::allocation()
 {
   // Allocate the required amount of data for activated options
-  if(t) T.reserve(nalloc);
-  if(i) I.reserve(nalloc);
-  if(r) RN.reserve(nalloc);
-  if(n) NoR.reserve(nalloc);
-  if(d) SDF.reserve(nalloc);
-  if(e) EoF.reserve(nalloc);
-  if(c) C.reserve(nalloc);
-  if(a) SA.reserve(nalloc);
-  if(u) UD.reserve(nalloc);
-  if(p) PSI.reserve(nalloc);
-  if(rgb)
+  if(inR)
   {
-    R.reserve(nalloc);
-    G.reserve(nalloc);
-    B.reserve(nalloc);
+    if(t) T.reserve(nalloc);
+    if(i) I.reserve(nalloc);
+    if(r) RN.reserve(nalloc);
+    if(n) NoR.reserve(nalloc);
+    if(d) SDF.reserve(nalloc);
+    if(e) EoF.reserve(nalloc);
+    if(c) C.reserve(nalloc);
+    if(a) SA.reserve(nalloc);
+    if(u) UD.reserve(nalloc);
+    if(p) PSI.reserve(nalloc);
+    if(rgb)
+    {
+      R.reserve(nalloc);
+      G.reserve(nalloc);
+      B.reserve(nalloc);
+    }
+    if(nir) NIR.reserve(nalloc);
+
+    // Find if extra bytes are 32 of 64 bytes types
+    for(int j = 0; j < eb.size(); j++)
+    {
+      int type = header->attributes[eb[j]].data_type;
+      bool has_scale = header->attributes[eb[j]].has_scale();
+      bool has_offset = header->attributes[eb[j]].has_offset();
+
+      if (type <= 6 && !(has_scale || has_offset))    // unsigned char | char | unsigned shor | short | unsigned long | long
+        eb32.push_back(eb[j]);
+      else if (type <= 10)      // unsigned long long | long long | unsigned double | double
+        eb64.push_back(eb[j]);
+      else
+        Rprintf("WARNING: data type %d of attribute %d not implemented.\n", type, j);
+    }
+
+    ExtraBytes32.resize(eb32.size());
+    ExtraBytes64.resize(eb64.size());
+
+    for(int j = 0; j < eb32.size(); j++)
+      ExtraBytes32[j].reserve(nalloc);
+
+    for(int j = 0; j < eb64.size(); j++)
+      ExtraBytes64[j].reserve(nalloc);
   }
-
-  // Find if extra bytes are 32 of 64 bytes types
-  for(int j = 0; j < eb.size(); j++)
-  {
-    int type = header->attributes[eb[j]].data_type;
-    bool has_scale = header->attributes[eb[j]].has_scale();
-    bool has_offset = header->attributes[eb[j]].has_offset();
-
-    if (type <= 6 && !(has_scale || has_offset))    // unsigned char | char | unsigned shor | short | unsigned long | long
-      eb32.push_back(eb[j]);
-    else if (type <= 10)      // unsigned long long | long long | unsigned double | double
-      eb64.push_back(eb[j]);
-    else
-      Rprintf("WARNING: data type %d of attribute %d not implemented.\n", type, j);
-  }
-
-  ExtraBytes32.resize(eb32.size());
-  ExtraBytes64.resize(eb64.size());
-
-  for(int j = 0; j < eb32.size(); j++)
-    ExtraBytes32[j].reserve(nalloc);
-
-  for(int j = 0; j < eb64.size(); j++)
-    ExtraBytes64[j].reserve(nalloc);
 }
 
 bool RLASstreamer::read_point()
@@ -232,6 +236,7 @@ void RLASstreamer::write_point()
       G.push_back(lasreader->point.get_G());
       B.push_back(lasreader->point.get_B());
     }
+    if(nir) NIR.push_back(lasreader->point.get_NIR());
 
     for(int j = 0; j < eb32.size(); j++)
     {
@@ -325,6 +330,7 @@ I32 RLASstreamer::get_attribute_int(LASpoint* point, I32 index)
     default:
       throw std::runtime_error("LAS Extra Byte data type not supported in I32.");
     }
+    return casted_value;
   }
   return 0;
 }
@@ -476,6 +482,14 @@ List RLASstreamer::terminate()
       B.shrink_to_fit();
     }
 
+    if(nir)
+    {
+      lasdata.push_back(NIR);
+      field.push_back("NIR");
+      NIR.clear();
+      NIR.shrink_to_fit();
+    }
+
     for(int j = 0; j < eb32.size(); j++)
     {
       lasdata.push_back(ExtraBytes32[j]);
@@ -507,6 +521,7 @@ void RLASstreamer::initialize_bool()
   u = true;
   p = true;
   rgb = true;
+  nir = true;
 
   inR = true;
   useFilter = false;
@@ -518,7 +533,7 @@ void RLASstreamer::initialize_bool()
 
 void RLASstreamer::read_t(bool b)
 {
-  t = b && (format == 1 || format == 3);
+  t = b && (format == 1 || format == 3 || format == 6 || format == 7 || format == 8);
 }
 
 void RLASstreamer::read_i(bool b)
@@ -569,7 +584,12 @@ void RLASstreamer::read_p(bool b)
 
 void RLASstreamer::read_rgb(bool b)
 {
-  rgb = b && (format == 2 || format == 3);
+  rgb = b && (format == 2 || format == 3 || format == 7 || format == 8);
+}
+
+void RLASstreamer::read_nir(bool b)
+{
+  nir = b && (format == 8);
 }
 
 void RLASstreamer::read_eb(IntegerVector x)
@@ -614,29 +634,28 @@ int RLASstreamer::get_format(U8 point_type)
     format = 2;
     break;
   case 3:
-
     format = 3;
     break;
   case 4:
-    throw std::runtime_error("LAS format not yet supported");
+    throw std::runtime_error("Point data record type 4 not yet supported");
     break;
   case 5:
-    throw std::runtime_error("LAS format not yet supported");
+    throw std::runtime_error("Point data record type 5 not yet supported");
     break;
   case 6:
-    throw std::runtime_error("LAS format not yet supported");
+    format = 6;
     break;
   case 7:
-    throw std::runtime_error("LAS format not yet supported");
+    format = 7;
     break;
   case 8:
-    throw std::runtime_error("LAS format not yet supported");
+    format = 8;
     break;
   case 9:
-    throw std::runtime_error("LAS format not yet supported");
+    throw std::runtime_error("Point data record type 9 not yet supported");
     break;
   case 10:
-    throw std::runtime_error("LAS format not yet supported");
+    throw std::runtime_error("Point data record type 10 not yet supported");
     break;
   default:
     throw std::runtime_error("LAS format not valid");
