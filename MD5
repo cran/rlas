@@ -1,7 +1,7 @@
 8f0e2cd40e05189ec81232da84bd6e1a *COPYING
-9c881b3322b0993d88d4244942421105 *DESCRIPTION
+7c8213c8b8f68fb0e27972c28415346e *DESCRIPTION
 f3a2ac0057c9d7cf99bc9d3e96aa2579 *NAMESPACE
-1acac53cf77316bc52c6418dafcd1605 *NEWS.md
+06d7b20dff4b5a56e79de87f6e60b820 *NEWS.md
 f2b93972bd05e39373e4d2550d20c673 *R/RcppExports.R
 0394f531aea795fda5804a95ab528b1f *R/checkers.r
 1bba29eb384ad7881ea8d1c2f5636fe3 *R/deprecated.r
@@ -10,7 +10,7 @@ f2b93972bd05e39373e4d2550d20c673 *R/RcppExports.R
 62f3d9098a3eeef3fe5c308c4c03df97 *R/writeLAS.r
 401b9dffb411235331b69e87585ae425 *R/writeLAX.r
 5698cf65652fe4eb1e9573c4be4550be *R/zzz.r
-457af4a70be2dbddaccbe5be1eba6728 *README.md
+b4f063b610c6055183af59c8b04779ef *README.md
 18b8f25b41ce57219c112ef9096cc16e *inst/extdata/example.laz
 f44d5d1c4ac7d0dc45cf6c91c3a364c5 *inst/extdata/extra_byte.laz
 2c6ac038164e20f35b9f2456438da091 *inst/include/LICENSE.txt
@@ -81,7 +81,7 @@ a5b64d73f71644fceead8fc687fa60db *inst/include/laszip_common_v3.hpp
 5a7f6e56fba129935021cc80e49948a0 *inst/include/laszip_decompress_selective_v3.hpp
 7bec48b5eb1e1e3d02f39c27d4b2fbee *inst/include/laszipper.hpp
 cf1bde1a437a799850de2d170df0944a *inst/include/mydefs.hpp
-f8e0a2a931b83f56e54c3c8183541491 *inst/include/rlasstreamer.h
+4097c41eff1ab34612740d056c611ec1 *inst/include/rlasstreamer.h
 116a18e59e5259ef4a4ce5f6550401da *man/check.Rd
 985b8285204500e57a2bbcc5fe50e6e4 *man/header_add_extrabytes.Rd
 e598b42146a1b11069c3a2ce086ebcde *man/header_create.Rd
@@ -146,9 +146,9 @@ d1e84f57a528d4cf1f8c971f4c947296 *src/RcppExports.cpp
 9b031e01ae2d1ae071b69832eed0ef0d *src/fast.cpp
 108866493e57e61115e54a016ed25c2d *src/point_in_polygon.cpp
 8b9e0d855602563499028d6e994cf3de *src/readLAS.cpp
-e2312d0374ed6745c57d895cf5d4b462 *src/readheader.cpp
-d03776ab16eaf5479b7d04d43ac38abe *src/rlasstreamer.cpp
-995522e396c2f2130fc793d858535fb1 *src/writeLAS.cpp
+9ee5fe07f8490c1ffb276550c861049d *src/readheader.cpp
+ed3bca8e9efdf12833d477b9813726ae *src/rlasstreamer.cpp
+102bb22536f6acfd9887bf1361040c01 *src/writeLAS.cpp
 d97649393f82e9b5636a8d8898406bb3 *src/writeLAX.cpp
 558312fbcf6b8f64b77af18fe6be73e9 *tests/testthat.R
 54e09b1106c88f5f4b96251474d36aaa *tests/testthat/test-header_tools.R
