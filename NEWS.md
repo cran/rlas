@@ -1,4 +1,17 @@
-### rlas v1.2.0 (Release date: 2018-04-13)
+### rlas v1.2.3 (Release date: 2018-05-17)
+
+#### NEW FEATURES
+
+* Read the classification flags in fields `Synthetic_flag`, `Keypoint_flag` and `Withheld_flag`.
+
+#### BUG FIXES:
+
+* Fix: point in polygon includes the points that define the polygon.
+* Fix: [[#21](https://github.com/Jean-Romain/rlas/issues/21)] writing a vector that contains only NAs in extra bytes
+* Fix: additional warnings on CRAN with gcc 8+
+* Fix: [[#19](https://github.com/Jean-Romain/rlas/issues/19)] additional errors on CRAN with valgrind
+
+### rlas v1.2.1 (Release date: 2018-04-13)
 
 #### BUG FIXES:
 

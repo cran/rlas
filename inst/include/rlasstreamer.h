@@ -49,6 +49,7 @@ class RLASstreamer
     void setinputfiles(CharacterVector);
     void setoutputfile(CharacterVector);
     void setfilter(CharacterVector);
+    void select(CharacterVector);
     void allocation();
     bool read_point();
     void write_point();
@@ -61,6 +62,9 @@ class RLASstreamer
     void read_d(bool);
     void read_e(bool);
     void read_c(bool);
+    void read_s(bool);
+    void read_k(bool);
+    void read_w(bool);
     void read_a(bool);
     void read_u(bool);
     void read_p(bool);
@@ -84,6 +88,9 @@ class RLASstreamer
     std::vector<unsigned short> SDF;
     std::vector<unsigned short> EoF;
     std::vector<unsigned short> C;
+    std::vector<bool> Synthetic;
+    std::vector<bool> Keypoint;
+    std::vector<bool> Withheld;
     std::vector<short> SA;
     std::vector<unsigned short> UD;
     std::vector<unsigned short> PSI;
@@ -91,8 +98,6 @@ class RLASstreamer
     std::vector<unsigned short> G;
     std::vector<unsigned short> B;
     std::vector<unsigned short> NIR;
-    std::vector<std::vector<int> > ExtraBytes32;     // extra_byte attributes for less than 32 bits types
-    std::vector<std::vector<double> > ExtraBytes64;  // extra_byte attributes for 32 to 64 bits types
 
     LASreadOpener lasreadopener;
     LASwriteOpener laswriteopener;
@@ -102,6 +107,9 @@ class RLASstreamer
 
     int format;
     int nalloc;
+
+    int nsynthetic;
+    int nwithheld;
 
     bool inR;
     bool useFilter;
@@ -115,6 +123,9 @@ class RLASstreamer
     bool d;
     bool e;
     bool c;
+    bool s;
+    bool k;
+    bool w;
     bool a;
     bool u;
     bool p;
