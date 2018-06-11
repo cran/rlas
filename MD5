@@ -1,7 +1,7 @@
 8f0e2cd40e05189ec81232da84bd6e1a *COPYING
-96e3d7c778aa921b44bea8dad1d55949 *DESCRIPTION
+ca262926a42e02cb4368869a90e7e98e *DESCRIPTION
 f3a2ac0057c9d7cf99bc9d3e96aa2579 *NAMESPACE
-efd35f6b35574553ef5bc57dd865eaf6 *NEWS.md
+a6957bb148a12c6ef4739ff0b5817afa *NEWS.md
 012b7c949068b91fff7587377076841b *R/RcppExports.R
 6f93cd0b2178f022bef11465b7064a3c *R/checkers.r
 93da74072ee206e73837b4375b437c1e *R/deprecated.r
@@ -10,7 +10,7 @@ efd35f6b35574553ef5bc57dd865eaf6 *NEWS.md
 62f3d9098a3eeef3fe5c308c4c03df97 *R/writeLAS.r
 401b9dffb411235331b69e87585ae425 *R/writeLAX.r
 5698cf65652fe4eb1e9573c4be4550be *R/zzz.r
-02949beb275fd89bb8e66613a5c599dd *README.md
+29c50623446524e12e7180eddd8f3dbb *README.md
 18b8f25b41ce57219c112ef9096cc16e *inst/extdata/example.laz
 f44d5d1c4ac7d0dc45cf6c91c3a364c5 *inst/extdata/extra_byte.laz
 2c6ac038164e20f35b9f2456438da091 *inst/include/LICENSE.txt
@@ -30,7 +30,7 @@ b3714d35658a12f3e1780c2217b8a51b *inst/include/bytestreamout.hpp
 e572961478267dc0d175470639a6f363 *inst/include/bytestreamout_nil.hpp
 2823bfd1ac278089945633cf22fe0247 *inst/include/bytestreamout_ostream.hpp
 6a8262ca4ac98b69460f17de83d7e98d *inst/include/integercompressor.hpp
-2989c109b5c71e3bf64e63cdf6d74756 *inst/include/lasattributer.hpp
+a4594dbc12234ebc1ac8877bc631ce93 *inst/include/lasattributer.hpp
 599e387e857c533848753501d9b272cb *inst/include/lasdefinitions.hpp
 c2fc4d19f5ca089d24ee8a5b03880b2d *inst/include/lasfilter.hpp
 1174e97fb06286f0b5a362e32d8048c3 *inst/include/lasindex.hpp
