@@ -1,3 +1,18 @@
+### rlas v1.2.6 (Release date: 2018-08-20)
+
+#### ENHANCEMENTS
+
+* `check_data` now check the adequation between the `ReturnNumber`and the `NumberOfReturns`
+
+#### BUG FIXES:
+
+* `las` format 7 was supported at the C++ level when reading a file but an old test still throw an error at the R level stating that this format was not supported.
+* fix several compilation warnings on CRAN
+
+#### OTHERS
+
+`readlasdata`and `readlasheader` were definitively removed.
+
 ### rlas v1.2.4 (Release date: 2018-06-10)
 
 * Reupload on CRAN after being removed.

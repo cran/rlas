@@ -99,7 +99,7 @@ read.lasheader = function(file)
   return(data)
 }
 
-stream.las = function(ifiles, ofile = "", select = "*", filter = "")
+stream.las = function(ifiles, ofile = "", select = "*", filter = "", filter_wkt = "")
 {
   check_file(ifiles)
   check_filter(filter)
@@ -109,7 +109,7 @@ stream.las = function(ifiles, ofile = "", select = "*", filter = "")
   if (ofile != "")
     ofile = suppressWarnings(normalizePath(ofile))
 
-  data = C_reader(ifiles, ofile, select, filter)
+  data = C_reader(ifiles, ofile, select, filter, filter_wkt)
 
   if (ofile != "")
     return(invisible())
@@ -121,34 +121,12 @@ stream.las = function(ifiles, ofile = "", select = "*", filter = "")
 
 stream.las_inpoly = function(ifiles, xpoly, ypoly, ofile = "", select = "*", filter = "")
 {
-  check_file(ifiles)
-  check_filter(filter)
-
-  ifiles = normalizePath(ifiles)
-
-  if (ofile != "")
-    ofile = suppressWarnings(normalizePath(ofile))
-
-  if (length(xpoly) != length(ypoly))
-      stop("Invalide polygon", call. = FALSE)
-
-  if (xpoly[1] != xpoly[length(xpoly)] | xpoly[1] != xpoly[length(xpoly)])
-      stop("The polygon is not closed", call. = FALSE)
-
-  xmin <- min(xpoly)-0.1
-  xmax <- max(xpoly)+0.1
-  ymin <- min(ypoly)-0.1
-  ymax <- max(ypoly)+0.1
-
-  filter <- paste(paste("-inside", xmin, ymin, xmax, ymax), filter)
-
-  data = C_reader_inpoly(ifiles, xpoly, ypoly, ofile, select, filter)
-
-  if (ofile != "")
-    return(invisible())
-
-  data.table::setDT(data)
-
+  p = sp::Polygon(cbind(xpoly,ypoly))
+  p = sp::Polygons(list(p), ID = "1")
+  p = sp::SpatialPolygons(list(p))
+  p = sf::st_as_sf(p)
+  wkt = sf::st_as_text(p$geometry)
+  data = stream.las(ifiles, ofile, select, filter, wkt)
   return(data)
 }
 
