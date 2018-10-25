@@ -11,7 +11,21 @@ test_that("write.las writes a correct file",{
   wheader = read.lasheader(write_path)
 
   expect_equal(las, wlas)
-  expect_equal(header$`Point Data Format ID`, wheader$`Point Data Format ID`)
+  expect_equal(header[-c(7:10, 12)], wheader[-c(7:10, 12)])
+})
+
+
+test_that("write.las writes epsg code",{
+  new_header = header
+  new_header$`Variable Length Records`$GeoKeyDirectoryTag$tags = list()
+  new_header$`Variable Length Records`$GeoKeyDirectoryTag$tags[[1]] = list( key = 3072,`value offset` = 26917)
+
+  write.las(write_path, new_header, las)
+  wlas = read.las(write_path)
+  wheader = read.lasheader(write_path)
+
+  expect_equal(las, wlas)
+  expect_equal(wheader$`Variable Length Records`$GeoKeyDirectoryTag$tags[[1]]$`value offset`, 26917)
 })
 
 test_that("UUID is properly written",{
@@ -38,12 +52,13 @@ test_that("write.las does not write time if point format enforced to 0",{
 })
 
 
-lazfile <- system.file("extdata", "extra_byte.laz", package="rlas")
+lazfile <- system.file("extdata", "extra_byte.laz", package = "rlas")
 las = read.las(lazfile)
 header = read.lasheader(lazfile)
 
-check_EB_header <- function(new, origin){
-  if(is.list(new))
+check_EB_header <- function(new, origin)
+{
+  if (is.list(new))
     mapply(check_EB_header, new, origin)
   else
     new[1] == origin[1]
@@ -79,7 +94,7 @@ test_that("write.las skip extra bytes if empty VLR", {
   expect_equal(length(wheader$`Variable Length Records`), 0)
 })
 
-test_that("write.las skiped selectively extra byte if missing VLR",{
+test_that("write.las skiped selectively extra bytes if missing VLR",{
   new_header = header
   new_header$`Variable Length Records`$Extra_Bytes$`Extra Bytes Description`$Amplitude = NULL
 
@@ -91,5 +106,19 @@ test_that("write.las skiped selectively extra byte if missing VLR",{
   expect_true(!"Amplitude" %in% names(wlas))
   expect_equal(wlas, las[, -c(17)])
 })
+
+test_that("write.las write correctly too long extra byte descriptions and name",{
+  new_header = header
+  new_header$`Variable Length Records`$Extra_Bytes$`Extra Bytes Description`$Amplitude$description = "A too long description according to las specification"
+
+  suppressWarnings(write.las(write_path, new_header, las))
+
+  wheader <- read.lasheader(write_path)
+
+  desc = wheader$`Variable Length Records`$Extra_Bytes$`Extra Bytes Description`$Amplitude$description
+
+  expect_equal(desc, "A too long description accordin")
+})
+
 
 

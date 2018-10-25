@@ -1,3 +1,7 @@
+### rlas v1.2.9 (Release date: 2018-10-26)
+
+* `write.las` writes the epsg code in the header.
+
 ### rlas v1.2.6 (Release date: 2018-08-20)
 
 #### ENHANCEMENTS

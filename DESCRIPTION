@@ -2,8 +2,8 @@ Package: rlas
 Type: Package
 Title: Read and Write 'las' and 'laz' Binary File Formats Used for
         Remote Sensing Data
-Version: 1.2.7
-Date: 2018-08-20
+Version: 1.2.9
+Date: 2018-10-24
 Authors@R: c(
     person("Jean-Romain", "Roussel", email = "jean-romain.roussel.1@ulaval.ca", role = c("aut", "cre", "cph")),
     person("Florian", "De Boissieu", email = "", role = c("aut", "ctb"), comment = "Enable the support of .lax file and extra byte attributes"),
@@ -17,12 +17,12 @@ License: GPL-3
 Depends: R (>= 3.0.0)
 Imports: data.table,Rcpp,uuid,rgeos,sp,sf
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 LinkingTo: Rcpp,BH
 Suggests: testthat
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2018-08-20 22:36:47 UTC; jr
+Packaged: 2018-10-25 18:50:21 UTC; jr
 Author: Jean-Romain Roussel [aut, cre, cph],
   Florian De Boissieu [aut, ctb] (Enable the support of .lax file and
     extra byte attributes),
@@ -32,4 +32,4 @@ Author: Jean-Romain Roussel [aut, cre, cph],
   Pierrick Marie [ctb] (Helped to compile LASlib code in R)
 Maintainer: Jean-Romain Roussel <jean-romain.roussel.1@ulaval.ca>
 Repository: CRAN
-Date/Publication: 2018-08-21 05:10:03 UTC
+Date/Publication: 2018-10-25 21:50:04 UTC
