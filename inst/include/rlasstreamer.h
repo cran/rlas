@@ -5,38 +5,10 @@
 #include "lasreader.hpp"
 #include "laswriter.hpp"
 #include "lasfilter.hpp"
+#include "laswaveform13reader.hpp"
+#include "rlasextrabytesattributes.h"
 
 using namespace Rcpp;
-
-class RLASExtrabyteAttributes
-{
-  public:
-    RLASExtrabyteAttributes();
-    int id;
-    int start;
-    std::string name;
-    int type;
-    bool has_scale;
-    bool has_offset;
-    bool has_no_data;
-    bool has_min;
-    bool has_max;
-    double scale;
-    double offset;
-    double no_data;
-    double min;
-    double max;
-    std::vector<int> eb32;
-    std::vector<double> eb64;
-
-    bool is_supported();
-    bool is_32bits();
-    void push_back(LASpoint*);
-
-  private:
-    F64 get_attribute_double(LASpoint*);
-    I32 get_attribute_int(LASpoint*);
-};
 
 class RLASstreamer
 {
@@ -65,17 +37,21 @@ class RLASstreamer
     void read_s(bool);
     void read_k(bool);
     void read_w(bool);
+    void read_o(bool);
     void read_a(bool);
     void read_u(bool);
     void read_p(bool);
     void read_rgb(bool);
     void read_nir(bool);
+    void read_cha(bool);
+    void read_W(bool);
     void read_eb(IntegerVector); // extra byte numbers
 
   private:
     void initialize_bool();
     void initialize();
     int get_format(U8);
+    void write_waveform();
 
   private:
     std::vector<double> X;
@@ -88,10 +64,13 @@ class RLASstreamer
     std::vector<unsigned short> SDF;
     std::vector<unsigned short> EoF;
     std::vector<unsigned short> C;
+    std::vector<unsigned short> Channel;
     std::vector<bool> Synthetic;
     std::vector<bool> Keypoint;
     std::vector<bool> Withheld;
-    std::vector<short> SA;
+    std::vector<bool> Overlap;
+    std::vector<double> SA;
+    std::vector<short> SAR;
     std::vector<unsigned short> UD;
     std::vector<unsigned short> PSI;
     std::vector<unsigned short> R;
@@ -99,8 +78,18 @@ class RLASstreamer
     std::vector<unsigned short> B;
     std::vector<unsigned short> NIR;
 
+    std::vector<int> wavePacketIndex;
+    std::vector<U64> wavePacketOffset;
+    std::vector<U32> wavePacketSize;
+    std::vector<F32> wavePacketLocation;
+    std::vector<F32> Xt;
+    std::vector<F32> Yt;
+    std::vector<F32> Zt;
+    std::vector< std::vector<int> >fullwaveform;
+
     LASreadOpener lasreadopener;
     LASwriteOpener laswriteopener;
+    LASwaveform13reader* laswaveform13reader;
     LASreader* lasreader;
     LASwriter* laswriter;
     LASheader* header;
@@ -111,10 +100,13 @@ class RLASstreamer
     int nsynthetic;
     int nwithheld;
 
+    unsigned int npoints;
+
     bool inR;
     bool useFilter;
     bool initialized;
     bool ended;
+    bool extended;
 
     bool t;
     bool i;
@@ -126,11 +118,14 @@ class RLASstreamer
     bool s;
     bool k;
     bool w;
+    bool o;
     bool a;
     bool u;
     bool p;
     bool rgb;
     bool nir;
+    bool cha;
+    bool W;
     std::vector<RLASExtrabyteAttributes> extra_bytes_attr;
     std::vector<int> eb;
 };

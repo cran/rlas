@@ -7,7 +7,7 @@
 
  COPYRIGHT:
 
- Copyright 2017 Jean-Romain Roussel
+ Copyright 2017-2019 Jean-Romain Roussel
 
  This file is part of rlas R package.
 
@@ -40,6 +40,7 @@
 using namespace Rcpp;
 
 List vlrsreader(LASheader*);
+List globalencodingreader(LASheader*);
 
 // Read header in a las or laz file
 //
@@ -79,7 +80,7 @@ List lasheaderreader(CharacterVector file)
     List head(0);
     head.push_back(lasheader->file_signature);
     head.push_back(lasheader->file_source_ID);
-    head.push_back(lasheader->global_encoding);
+    head.push_back(globalencodingreader(lasheader));
     head.push_back(guid);
     head.push_back((int)lasheader->version_major);
     head.push_back((int)lasheader->version_minor);
@@ -92,12 +93,30 @@ List lasheaderreader(CharacterVector file)
     head.push_back(lasheader->number_of_variable_length_records);
     head.push_back((int)lasheader->point_data_format);
     head.push_back(lasheader->point_data_record_length);
-    head.push_back(lasheader->number_of_point_records);
-    head.push_back(lasheader->number_of_points_by_return[0]);
-    head.push_back(lasheader->number_of_points_by_return[1]);
-    head.push_back(lasheader->number_of_points_by_return[2]);
-    head.push_back(lasheader->number_of_points_by_return[3]);
-    head.push_back(lasheader->number_of_points_by_return[4]);
+
+    // Added support of LAS 1.4
+    if (lasheader->version_minor == 4)
+    {
+      if (lasheader->extended_number_of_point_records > 2147483647)
+        throw std::runtime_error("R cannot handle more than 2147483647 points.");
+
+      head.push_back((int)lasheader->extended_number_of_point_records);
+      IntegerVector extended_number_of_points_by_return(15);
+      for(int i = 0 ; i < 15 ; i++) extended_number_of_points_by_return[i] = (int)lasheader->extended_number_of_points_by_return[i];
+      head.push_back(extended_number_of_points_by_return);
+    }
+    else
+    {
+      if (lasheader->number_of_point_records > 2147483647)
+        throw std::runtime_error("R cannot handle more than 2147483647 points.");
+
+      head.push_back((int)lasheader->number_of_point_records);
+
+      IntegerVector number_of_points_by_return(5);
+      for(int i = 0 ; i < 5 ; i++) number_of_points_by_return[i] = (int)lasheader->number_of_points_by_return[i];
+      head.push_back(number_of_points_by_return);
+    }
+
     head.push_back(lasheader->x_scale_factor);
     head.push_back(lasheader->y_scale_factor);
     head.push_back(lasheader->z_scale_factor);
@@ -111,9 +130,6 @@ List lasheaderreader(CharacterVector file)
     head.push_back(lasheader->max_z);
     head.push_back(lasheader->min_z);
     head.push_back(vlrsreader(lasheader));
-
-    lasreader->close();
-    delete lasreader;
 
     CharacterVector names(0);
     names.push_back("File Signature");
@@ -132,11 +148,7 @@ List lasheaderreader(CharacterVector file)
     names.push_back("Point Data Format ID");
     names.push_back("Point Data Record Length");
     names.push_back("Number of point records");
-    names.push_back("Number of 1st return");
-    names.push_back("Number of 2nd return");
-    names.push_back("Number of 3rd return");
-    names.push_back("Number of 4th return");
-    names.push_back("Number of 5th return");
+    names.push_back("Number of points by return");
     names.push_back("X scale factor");
     names.push_back("Y scale factor");
     names.push_back("Z scale factor");
@@ -153,6 +165,9 @@ List lasheaderreader(CharacterVector file)
 
     head.names() = names;
 
+    lasreader->close();
+    delete lasreader;
+
     return(head);
   }
   catch (std::exception const& e)
@@ -160,6 +175,23 @@ List lasheaderreader(CharacterVector file)
     Rcerr << "Error: " << e.what() << std::endl;
     return(List(0));
   }
+}
+
+List globalencodingreader(LASheader* lasheader)
+{
+  bool GPSTimeType = lasheader->get_global_encoding_bit(0);
+  bool WaveformDataPacketsInternal = lasheader->get_global_encoding_bit(1);
+  bool WaveformDataPacketsExternal = lasheader->get_global_encoding_bit(2);
+  bool SyntheticReturnNumbers = lasheader->get_global_encoding_bit(3);
+  bool WKT = lasheader->get_global_encoding_bit(4);
+  bool AggregateModel = lasheader->get_global_encoding_bit(5);
+
+  return List::create(Named("GPS Time Type") = GPSTimeType,
+                      Named("Waveform Data Packets Internal") = WaveformDataPacketsInternal,
+                      Named("Waveform Data Packets External") = WaveformDataPacketsExternal,
+                      Named("Synthetic Return Numbers") = SyntheticReturnNumbers,
+                      Named("WKT") = WKT,
+                      Named("Aggregate Model") = AggregateModel);
 }
 
 List vlrsreader(LASheader* lasheader)
@@ -171,8 +203,7 @@ List vlrsreader(LASheader* lasheader)
 
   for (int i = 0; i < nvlrs; i++)
   {
-    LASvlr vlr = lasheader->vlrs[i];
-
+    LASvlr vlr     = lasheader->vlrs[i];
     List lvlr      = List::create(vlr.reserved, vlr.user_id, vlr.record_id, vlr.record_length_after_header, vlr.description);
     List lvlrnames = List::create("reserved", "user ID", "record ID", "length after header", "description");
 
@@ -212,22 +243,22 @@ List vlrsreader(LASheader* lasheader)
       }
       else if (vlr.record_id == 34737) // GeoAsciiParamsTag
       {
-        //lvlr.push_back(std::string(reinterpret_cast< char const* >(vlr.data)))
-        lvlr.push_back("The reading of this information is not yet supported by rlas");
+        lvlr.push_back(std::string(reinterpret_cast< char const* >(vlr.data)));
+        //lvlr.push_back("The reading of this information is not yet supported by rlas");
         lvlrnames.push_back("tags");
         lvlrsnames.push_back("GeoAsciiParamsTag");
       }
       else if (vlr.record_id == 2111) // WKT OGC MATH TRANSFORM
       {
-        //lvlr.push_back(std::string(reinterpret_cast< char const* >(vlr.data)))
-        lvlr.push_back("The reading of this information is not yet supported by rlas");
+        lvlr.push_back(std::string(reinterpret_cast< char const* >(vlr.data)));
+        //lvlr.push_back("The reading of this information is not yet supported by rlas");
         lvlrnames.push_back("WKT OGC MATH TRANSFORM");
         lvlrsnames.push_back("WKT OGC MT");
       }
       else if (vlr.record_id == 2112) // WKT OGC COORDINATE SYSTEM
       {
-        //lvlr.push_back(std::string(reinterpret_cast< char const* >(vlr.data)))
-        lvlr.push_back("The reading of this information is not yet supported by rlas");
+        lvlr.push_back(std::string(reinterpret_cast< char const* >(vlr.data)));
+        //lvlr.push_back("The reading of this information is not yet supported by rlas");
         lvlrnames.push_back("WKT OGC COORDINATE SYSTEM");
         lvlrsnames.push_back("WKT OGC CS");
       }
@@ -248,7 +279,7 @@ List vlrsreader(LASheader* lasheader)
 
             if (attemp.data_type)
             {
-              int type = ((I32)(attemp.data_type)-1)%10;
+              int data_type = ((I32)(attemp.data_type)-1)%10;
               //int dim = ((I32)(attemp.data_type)-1)/10+1;
 
               List ExtraByte(0);
@@ -280,7 +311,7 @@ List vlrsreader(LASheader* lasheader)
                 ExtraBytenames.push_back("offset");
               }
 
-              if (type < 8)
+              if (data_type < 8)
               {
                 I64* temp; // as R does not support long long int it is converted to double
 

@@ -1,466 +1,317 @@
 /*
-===============================================================================
+ ===============================================================================
 
-PROGRAMMERS:
+ PROGRAMMERS:
 
-jean-romain.roussel.1@ulaval.ca  -  https://github.com/Jean-Romain/rlas
+ jean-romain.roussel.1@ulaval.ca  -  https://github.com/Jean-Romain/rlas
 
-COPYRIGHT:
+ COPYRIGHT:
 
-Copyright 2016 Jean-Romain Roussel
+ Copyright 2016-2019 Jean-Romain Roussel
 
-This file is part of rlas R package.
+ This file is part of rlas R package.
 
-rlas is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ rlas is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-===============================================================================
-*/
+ ===============================================================================
+ */
 
 #include <Rcpp.h>
-
-#include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "laswriter.hpp"
+#include "rlasextrabytesattributes.h"
 
 using namespace Rcpp;
 
-int get_point_data_record_length(int x);
+int  get_point_data_record_length(int x);
 void set_guid(LASheader&, const char*);
+void set_global_enconding(LASheader&, List);
 
 // [[Rcpp::export]]
 void C_writer(CharacterVector file, List LASheader, DataFrame data)
 {
-  try
-  {
-    // 1. Public Header Block
 
-    class LASheader header;
-    header.file_source_ID = (int)LASheader["File Source ID"];
-    header.version_major = (int)LASheader["Version Major"];
-    header.version_minor = (int)LASheader["Version Minor"];
-    header.header_size = (int)LASheader["Header Size"];
+   class LASheader header;
+
+    // ===========================
+    // Public Header Block
+    // ===========================
+
+    // 1.1. These ones are easy
+
+    header.file_source_ID       = (int)LASheader["File Source ID"];
+    header.version_major        = (int)LASheader["Version Major"];
+    header.version_minor        = (int)LASheader["Version Minor"];
+    header.header_size          = (int)LASheader["Header Size"];
     header.offset_to_point_data = header.header_size;
-    header.file_creation_year = (int)LASheader["File Creation Year"];
-    header.point_data_format = (int)LASheader["Point Data Format ID"];
-    header.x_scale_factor = (double)LASheader["X scale factor"];
-    header.y_scale_factor = (double)LASheader["Y scale factor"];
-    header.z_scale_factor = (double)LASheader["Z scale factor"];
-    header.x_offset =  (double)LASheader["X offset"];
-    header.y_offset =  (double)LASheader["Y offset"];
-    header.z_offset =  (double)LASheader["Z offset"];
+    header.file_creation_year   = (int)LASheader["File Creation Year"];
+    header.point_data_format    = (int)LASheader["Point Data Format ID"];
+    header.x_scale_factor       = (double)LASheader["X scale factor"];
+    header.y_scale_factor       = (double)LASheader["Y scale factor"];
+    header.z_scale_factor       = (double)LASheader["Z scale factor"];
+    header.x_offset             = (double)LASheader["X offset"];
+    header.y_offset             = (double)LASheader["Y offset"];
+    header.z_offset             = (double)LASheader["Z offset"];
+
+    bool extended = (header.version_minor >= 4) && (header.point_data_format >= 6);
+
+    // 1.2. These one need special interpretation
+
     header.point_data_record_length = get_point_data_record_length(header.point_data_format);
     strcpy(header.generating_software, "rlas R package");
 
-    // uuid
     CharacterVector guid = LASheader["Project ID - GUID"];
     std::string stdguid  = as<std::string>(guid);
-    const char* cguid = stdguid.c_str();
-    set_guid(header, cguid);
+    set_guid(header, stdguid.c_str());
 
-    // 2. Variable lenght records
+    set_global_enconding(header, LASheader["Global Encoding"]);
 
-    // 2.1 retrive what the list contains
+    // ===========================
+    // 2. Variable Lenght Records
+    // ===========================
 
-    List description_eb(0);
-    U16 epsg = 0;
-    if(LASheader.containsElementNamed("Variable Length Records"))
+    bool isset_vlr = LASheader.containsElementNamed("Variable Length Records");
+    List vlr = (isset_vlr) ? LASheader["Variable Length Records"] : List(0);
+
+    // 2.1 ESPG code
+
+    if(isset_vlr && vlr.containsElementNamed("GeoKeyDirectoryTag"))
     {
-      List vlr = LASheader["Variable Length Records"];
+      List GKDT = vlr["GeoKeyDirectoryTag"];
+      List tags = GKDT["tags"];
 
-      if(vlr.containsElementNamed("Extra_Bytes"))
+      for (int i = 0 ; i < tags.size() ; i ++)
       {
-        List extra_bytes = vlr["Extra_Bytes"];
+        List tag = tags[i];
+        int key  = tag["key"];
 
-        if(extra_bytes.containsElementNamed("Extra Bytes Description"))
+        if (key == 3072)
         {
-          description_eb = extra_bytes["Extra Bytes Description"];
-        }
-      }
+          LASvlr_key_entry* vlr_epsg = new LASvlr_key_entry();
+          vlr_epsg->key_id = 3072;
+          vlr_epsg->tiff_tag_location = 0;
+          vlr_epsg->count = 1;
+          vlr_epsg->value_offset = (U16)tag["value offset"];
 
-      if(vlr.containsElementNamed("GeoKeyDirectoryTag"))
-      {
-        List gktd = vlr["GeoKeyDirectoryTag"];
-        List tags = gktd["tags"];
+          header.set_geo_keys(1, vlr_epsg);
+          delete vlr_epsg;
 
-        for (int i = 0 ; i < tags.size() ; i ++)
-        {
-          List tag = tags[i];
-          int key = tag["key"];
-
-          if (key == 3072)
-            epsg = tag["value offset"];
+          break;
         }
       }
     }
 
-    // 2.2 Update the header
+    // 2.2 WKT OGC MATH TRANSFORM
 
-    if (epsg != 0)
+    // 2.3 WKT OGC COORDINATE
+
+    if (isset_vlr && vlr.containsElementNamed("WKT OGC CS"))
     {
-      LASvlr_key_entry* vlr_epsg = new LASvlr_key_entry();
-      vlr_epsg->key_id = 3072;
-      vlr_epsg->tiff_tag_location = 0;
-      vlr_epsg->count = 1;
-      vlr_epsg->value_offset = epsg;
+      List WKTOGCCS = vlr["WKT OGC CS"];
 
-      header.set_geo_keys(1, vlr_epsg);
-      delete vlr_epsg;
+      if (WKTOGCCS.containsElementNamed("WKT OGC COORDINATE SYSTEM"))
+      {
+        CharacterVector WKT = WKTOGCCS["WKT OGC COORDINATE SYSTEM"];
+        std::string sWKT    = as<std::string>(WKT);
+        header.set_geo_ogc_wkt(sWKT.size(), sWKT.c_str());
+      }
     }
 
-    int num_eb = description_eb.size();              // Get the number of extra byte
-    std::vector<std::string> ebnames(num_eb);        // Get the name of the extra bytes based on column name of the data.frame
-    std::vector<int> attribute_index(num_eb);        // Index of attribute in the header
-    std::vector<int> attribute_starts(num_eb);       // Attribute starting byte number
-    std::vector<double> scale(num_eb, 1.0);          // Default scale factor
-    std::vector<double> offset(num_eb, 0.0);         // Default offset factor
-    std::vector<int> type(num_eb);                   // Attribute type (see comment at the very end of this file)
-    double scaled_value;                             // Temporary variable
+    // 2.4 Extrabytes attributes
 
-
-    // Update the header
-    for(int i = 0; i < num_eb; i++)
+    std::vector<RLASExtrabyteAttributes> ExtraBytesAttr;
+    if(isset_vlr && vlr.containsElementNamed("Extra_Bytes"))
     {
-      List description = description_eb[i];
+      List extra_bytes = vlr["Extra_Bytes"];
 
-      type[i] = ((int)(description["data_type"])-1) % 10;
-      int options = description["options"];
-      ebnames[i] = as< std::string >(description["name"]);
-      std::string desc = description["description"];
-
-      //  checks if name exist in data
-      if(!data.containsElementNamed(ebnames[i].c_str()))
-        throw std::runtime_error("Extra Byte described but not present in data.");
-
-      LASattribute attribute(type[i], ebnames[i].c_str(), desc.c_str(), 1);
-
-      // see extra byte option definition in LAS 1.4
-      bool has_no_data = options & 0x01;
-      bool has_min = options & 0x02;
-      bool has_max = options & 0x04;
-      bool has_scale = options & 0x08;
-      bool has_offset = options & 0x10;
-
-
-      // set scale value if option set
-      if(has_scale)
+      if(extra_bytes.containsElementNamed("Extra Bytes Description"))
       {
-        scale[i] = (double)(as<List>(description["scale"])[0]);
-        attribute.set_scale(scale[i], 0);
-      }
+        List description_eb = extra_bytes["Extra Bytes Description"];
 
-      // set offset value if option set
-      if(has_offset)
-      {
-        offset[i] = (double)(as<List>(description["offset"])[0]);
-        attribute.set_offset(offset[i], 0);
-      }
-
-      // set no data value if option set
-      if(has_no_data)
-      {
-        scaled_value=((double)(as<List>(description["no_data"])[0]) - offset[i])/scale[i];
-
-        switch(type[i])
+        for(int i = 0 ; i < description_eb.size() ; i++)
         {
-        case 0:
-          attribute.set_no_data(U8_CLAMP(U8_QUANTIZE(scaled_value)));
-          break;
-        case 1:
-          attribute.set_no_data(I8_CLAMP(I8_QUANTIZE(scaled_value)));
-          break;
-        case 2:
-          attribute.set_no_data(U16_CLAMP(U16_QUANTIZE(scaled_value)));
-          break;
-        case 3:
-          attribute.set_no_data(I16_CLAMP(I16_QUANTIZE(scaled_value)));
-          break;
-        case 4:
-          attribute.set_no_data(U32_CLAMP(U32_QUANTIZE(scaled_value)));
-          break;
-        case 5:
-          attribute.set_no_data(I32_CLAMP(I32_QUANTIZE(scaled_value)));
-          break;
-        case 6:
-          attribute.set_no_data(U64_QUANTIZE(scaled_value));
-          break;
-        case 7:
-          attribute.set_no_data(I64_QUANTIZE(scaled_value));
-          break;
-        case 8:
-          attribute.set_no_data((float)(scaled_value));
-          break;
-        case 9:
-          attribute.set_no_data(scaled_value);
-          break;
+          List description = description_eb[i];
+          RLASExtrabyteAttributes ExtraByte;
+
+          ExtraByte.name = as< std::string >(description["name"]);
+
+          if (!data.containsElementNamed(ExtraByte.name.c_str()))
+            stop("Extra Bytes described but not present in data.");
+
+          ExtraByte.options = (int)description["options"];
+          ExtraByte.parse_options();
+
+          ExtraByte.data_type = ((int)(description["data_type"])-1) % 10;
+          ExtraByte.desc = as< std::string >(description["description"]);
+
+          if(ExtraByte.has_scale)
+            ExtraByte.scale = (double)(description["scale"]);
+
+          if(ExtraByte.has_offset)
+            ExtraByte.offset = (double)(description["offset"]);
+
+          if(ExtraByte.has_no_data)
+            ExtraByte.no_data = ((double)(description["no_data"]) - ExtraByte.offset)/ExtraByte.scale;
+
+          if(ExtraByte.has_min)
+            ExtraByte.min = ((double)(description["min"]) - ExtraByte.offset)/ExtraByte.scale;
+
+          if(ExtraByte.has_max)
+            ExtraByte.max =  ((double)(description["max"]) - ExtraByte.offset)/ExtraByte.scale;
+
+          LASattribute attribute = ExtraByte.make_LASattribute();
+
+          ExtraByte.id  = header.add_attribute(attribute);
+          ExtraByte.Reb = as<NumericVector>(data[ExtraByte.name.c_str()]);
+          ExtraBytesAttr.push_back(ExtraByte);
         }
+
+        header.update_extra_bytes_vlr();
+        header.point_data_record_length += header.get_attributes_size();
+
+        // Starting byte
+        for(auto& ExtraByte : ExtraBytesAttr)
+          ExtraByte.start = header.get_attribute_start(ExtraByte.id);
       }
-
-      // set min value if option set
-      if(has_min)
-      {
-        scaled_value=((double)(as<List>(description["min"])[0]) - offset[i])/scale[i];
-
-        switch(type[i])
-        {
-        case 0:
-          attribute.set_min(U8_CLAMP(U8_QUANTIZE(scaled_value)));
-          break;
-        case 1:
-          attribute.set_min(I8_CLAMP(I8_QUANTIZE(scaled_value)));
-          break;
-        case 2:
-          attribute.set_min(U16_CLAMP(U16_QUANTIZE(scaled_value)));
-          break;
-        case 3:
-          attribute.set_min(I16_CLAMP(I16_QUANTIZE(scaled_value)));
-          break;
-        case 4:
-          attribute.set_min(U32_CLAMP(U32_QUANTIZE(scaled_value)));
-          break;
-        case 5:
-          attribute.set_min(I32_CLAMP(I32_QUANTIZE(scaled_value)));
-          break;
-        case 6:
-          attribute.set_min(U64_QUANTIZE(scaled_value));
-          break;
-        case 7:
-          attribute.set_min(I64_QUANTIZE(scaled_value));
-          break;
-        case 8:
-          attribute.set_min((float)(scaled_value));
-          break;
-        case 9:
-          attribute.set_min(scaled_value);
-          break;
-        }
-      }
-
-      // set max value if option set
-      if(has_max)
-      {
-        scaled_value=((double)(as<List>(description["max"])[0]) - offset[i])/scale[i];
-        switch(type[i])
-        {
-        case 0:
-          attribute.set_max(U8_CLAMP(U8_QUANTIZE(scaled_value)));
-          break;
-        case 1:
-          attribute.set_max(I8_CLAMP(I8_QUANTIZE(scaled_value)));
-          break;
-        case 2:
-          attribute.set_max(U16_CLAMP(U16_QUANTIZE(scaled_value)));
-          break;
-        case 3:
-          attribute.set_max(I16_CLAMP(I16_QUANTIZE(scaled_value)));
-          break;
-        case 4:
-          attribute.set_max(U32_CLAMP(U32_QUANTIZE(scaled_value)));
-          break;
-        case 5:
-          attribute.set_max(I32_CLAMP(I32_QUANTIZE(scaled_value)));
-          break;
-        case 6:
-          attribute.set_max(U64_QUANTIZE(scaled_value));
-          break;
-        case 7:
-          attribute.set_max(I64_QUANTIZE(scaled_value));
-          break;
-        case 8:
-          attribute.set_max((float)(scaled_value));
-          break;
-        case 9:
-          attribute.set_max(scaled_value);
-          break;
-        }
-      }
-
-      // Finally add the attribute to the header
-      attribute_index[i] = header.add_attribute(attribute);
     }
 
-    header.update_extra_bytes_vlr();
-    header.point_data_record_length += header.get_attributes_size();
+    if (!header.check())
+      stop("LASlib internal error. See message above.");
 
-    // starting byte in point format of extra byte j
-    for(int i = 0; i < num_eb; i++)
-      attribute_starts[i] = header.get_attribute_start(attribute_index[i]);
-
-
-    // 3. write the data to the file
+    // ===============================
+    // 3. Write the data into the file
+    // ===============================
 
     LASwriteOpener laswriteopener;
     laswriteopener.set_file_name(as<std::string>(file).c_str());
 
-    LASpoint p;
-    p.init(&header, header.point_data_format, header.point_data_record_length, 0);
+    LASpoint point;
+    point.init(&header, header.point_data_format, header.point_data_record_length, 0);
 
     LASwriter* laswriter = laswriteopener.open(&header);
 
     if(0 == laswriter || NULL == laswriter)
-      throw std::runtime_error("LASlib internal error. See message above.");
+      stop("LASlib internal error. See message above.");
 
-    NumericVector X = data["X"];
-    NumericVector Y = data["Y"];
-    NumericVector Z = data["Z"];
-    IntegerVector I = IntegerVector(0);
-    IntegerVector RN = IntegerVector(0);
-    IntegerVector NoR = IntegerVector(0);
-    IntegerVector SDF = IntegerVector(0);
-    IntegerVector EoF = IntegerVector(0);
-    IntegerVector C = IntegerVector(0);
-    LogicalVector S = LogicalVector(0);
-    LogicalVector K = LogicalVector(0);
-    LogicalVector W = LogicalVector(0);
-    IntegerVector SA = IntegerVector(0);
-    IntegerVector UD = IntegerVector(0);
-    IntegerVector PSI = IntegerVector(0);
-    NumericVector T = NumericVector(0);
-    IntegerVector R  = IntegerVector(0);
-    IntegerVector G = IntegerVector(0);
-    IntegerVector B = IntegerVector(0);
-    IntegerVector NIR = IntegerVector(0);
+    #define ISSET(NAME) data.containsElementNamed(NAME)
 
-    if (data.containsElementNamed("Intensity"))
-      I = data["Intensity"];
-    if (data.containsElementNamed("ReturnNumber"))
-      RN = data["ReturnNumber"];
-    if (data.containsElementNamed("NumberOfReturns"))
-      NoR = data["NumberOfReturns"];
-    if (data.containsElementNamed("ScanDirectionFlag"))
-      SDF = data["ScanDirectionFlag"];
-    if (data.containsElementNamed("EdgeOfFlightline"))
-      EoF = data["EdgeOfFlightline"];
-    if (data.containsElementNamed("Classification"))
-      C = data["Classification"];
-    if (data.containsElementNamed("Synthetic_flag"))
-      S = data["Synthetic_flag"];
-    if (data.containsElementNamed("Keypoint_flag"))
-      K = data["Keypoint_flag"];
-    if (data.containsElementNamed("Withheld_flag"))
-      W = data["Withheld_flag"];
-    if (data.containsElementNamed("ScanAngle"))
-      SA = data["ScanAngle"];
-    if (data.containsElementNamed("UserData"))
-      UD = data["UserData"];
-    if (data.containsElementNamed("PointSourceID"))
-      PSI = data["PointSourceID"];
-    if (data.containsElementNamed("gpstime"))
-      T = data["gpstime"];
-    if (data.containsElementNamed("R"))
-      R = data["R"];
-    if (data.containsElementNamed("G"))
-      G = data["G"];
-    if (data.containsElementNamed("B"))
-      B = data["B"];
-    if (data.containsElementNamed("NIR"))
-      NIR = data["NIR"];
+    bool i = ISSET("Intensity");
+    bool r = ISSET("ReturnNumber");
+    bool n = ISSET("NumberOfReturns");
+    bool d = ISSET("ScanDirectionFlag");
+    bool e = ISSET("EdgeOfFlightline");
+    bool c = ISSET("Classification");
+    bool s = ISSET("Synthetic_flag");
+    bool k = ISSET("Keypoint_flag");
+    bool w = ISSET("Withheld_flag");
+    bool o = ISSET("Overlap_flag") && extended;
+    bool u = ISSET("UserData");
+    bool p = ISSET("PointSourceID");
+    bool t = ISSET("gpstime");
+    bool R = ISSET("R");
+    bool G = ISSET("G");
+    bool B = ISSET("B");
+    bool N = ISSET("NIR");
+    bool sar = ISSET("ScanAngleRank");
+    bool esa = ISSET("ScanAngle");
+    bool cha = ISSET("ScannerChannel") && extended;
 
-    // convert data.frame to Numeric vector to reduce access time
-    std::vector< NumericVector > EB(num_eb);                        // For fast access to data.frame elements
+    NumericVector X   = data["X"];
+    NumericVector Y   = data["Y"];
+    NumericVector Z   = data["Z"];
+    IntegerVector I   = (i) ? data["Intensity"] : IntegerVector(0);
+    IntegerVector RN  = (r) ? data["ReturnNumber"] : IntegerVector(0);
+    IntegerVector NR  = (n) ? data["NumberOfReturns"] : IntegerVector(0);
+    IntegerVector D   = (d) ? data["ScanDirectionFlag"] : IntegerVector(0);
+    IntegerVector E   = (e) ? data["EdgeOfFlightline"] : IntegerVector(0);
+    IntegerVector C   = (c) ? data["Classification"] : IntegerVector(0);
+    LogicalVector S   = (s) ? data["Synthetic_flag"] : LogicalVector(0);
+    LogicalVector K   = (k) ? data["Keypoint_flag"] : LogicalVector(0);
+    LogicalVector W   = (w) ? data["Withheld_flag"] : LogicalVector(0);
+    LogicalVector O   = (o) ? data["Overlap_flag"] : LogicalVector(0);
+    IntegerVector U   = (u) ? data["UserData"] : IntegerVector(0);
+    IntegerVector P   = (p) ? data["PointSourceID"] : IntegerVector(0);
+    NumericVector T   = (t) ? data["gpstime"] : NumericVector(0);
+    IntegerVector Red = (R) ? data["R"] : IntegerVector(0);
+    IntegerVector Gre = (G) ? data["G"] : IntegerVector(0);
+    IntegerVector Blu = (B) ? data["B"] : IntegerVector(0);
+    IntegerVector NIR = (N) ? data["NIR"] : IntegerVector(0);
+    IntegerVector SAR = (sar) ? data["ScanAngleRank"] : IntegerVector(0);
+    IntegerVector ESA = (esa) ? data["ScanAngle"] : IntegerVector(0);
+    IntegerVector CHA = (cha) ? data["ScannerChannel"] : IntegerVector(0);
 
-    for(int i = 0; i < num_eb; i++)
-      EB[i] = data[ebnames[i]];
-
-    for(int i = 0 ; i < X.length() ; i++)
+    for(int j = 0 ; j < X.length() ; j++)
     {
       // Add regular data
-      p.set_x(X[i]);
-      p.set_y(Y[i]);
-      p.set_z(Z[i]);
+      point.set_x(X[j]);
+      point.set_y(Y[j]);
+      point.set_z(Z[j]);
 
-      if(I.length() > 0){ p.set_intensity((U16)I[i]); }
-      if(RN.length() > 0){ p.set_return_number((U8)RN[i]); }
-      if(NoR.length() > 0){ p.set_number_of_returns((U8)NoR[i]); }
-      if(SDF.length() > 0){ p.set_scan_direction_flag((U8)SDF[i]); }
-      if(EoF.length() > 0){ p.set_edge_of_flight_line((U8)EoF[i]); }
-      if(C.length() > 0){ p.set_classification((U8)C[i]); }
-      if(S.length() > 0){ p.set_synthetic_flag((U8)S[i]); }
-      if(K.length() > 0){ p.set_keypoint_flag((U8)K[i]); }
-      if(W.length() > 0){ p.set_withheld_flag((U8)W[i]); }
-      if(SA.length() > 0){ p.set_scan_angle_rank((I8)SA[i]); }
-      if(UD.length() > 0){ p.set_user_data((U8)UD[i]); }
-      if(PSI.length() > 0){ p.set_point_source_ID((U16)PSI[i]); }
-      if(T.length() > 0){ p.set_gps_time((F64)T[i]); }
-      if(R.length() > 0) { p.set_R((U16)R[i]); }
-      if(G.length() > 0) { p.set_G((U16)G[i]); }
-      if(B.length() > 0) { p.set_B((U16)B[i]); }
-      if(NIR.length() > 0) { p.set_NIR((U16)NIR[i]); }
+      if(i) { point.set_intensity((U16)I[j]); }
+
+      if(r && !extended) { point.set_return_number((U8)RN[j]); }
+      if(r &&  extended) { point.set_extended_return_number((U8)RN[j]); }
+
+      if(n && !extended) { point.set_number_of_returns((U8)NR[j]); }
+      if(n &&  extended) { point.set_extended_number_of_returns((U8)NR[j]); }
+
+      if(d) { point.set_scan_direction_flag((U8)D[j]); }
+      if(e) { point.set_edge_of_flight_line((U8)E[j]); }
+
+      if(c && !extended) { point.set_classification((U8)C[j]); }
+      if(c &&  extended) { point.set_extended_classification((U8)C[j]); }
+
+      if(cha) { point.set_extended_scanner_channel((U8)CHA[j]); }
+
+      if(s) { point.set_synthetic_flag((U8)S[j]); }
+      if(k) { point.set_keypoint_flag((U8)K[j]); }
+      if(w) { point.set_withheld_flag((U8)W[j]); }
+      if(o) { point.set_extended_overlap_flag((U8)O[j]); }
+
+      if(sar) { point.set_scan_angle_rank((I8)SAR[j]); }
+      if(esa) { point.set_extended_scan_angle((I16)ESA[j]/0.006f); }
+
+      if(u) { point.set_user_data((U8)U[j]); }
+      if(p) { point.set_point_source_ID((U16)P[j]); }
+      if(t) { point.set_gps_time((F64)T[j]); }
+      if(R) { point.set_R((U16)Red[j]); }
+      if(G) { point.set_G((U16)Gre[j]); }
+      if(B) { point.set_B((U16)Blu[j]); }
+      if(N) { point.set_NIR((U16)NIR[j]); }
 
       // Add extra bytes
-      for(int j = 0 ; j < num_eb ; j++)
-      {
-        List description = description_eb[j];
-        int options = description["options"];
-        bool has_no_data = options & 0x01;
-        double scaled_value;
+      for(auto& ExtraByte : ExtraBytesAttr)
+        ExtraByte.set_attribute(j, &point);
 
-        // value is scaled, quantized and clamped to fit chosen datatype
-        if (has_no_data && NumericVector::is_na(EB[j][i]))
-          scaled_value = as<List>(description["no_data"])[0];
-        else
-          scaled_value = (EB[j][i] - offset[j])/scale[j];
-
-        switch(type[j])
-        {
-        case 0:
-          p.set_attribute(attribute_starts[j], U8_CLAMP(U8_QUANTIZE(scaled_value)));
-          break;
-        case 1:
-          p.set_attribute(attribute_starts[j], I8_CLAMP(I8_QUANTIZE(scaled_value)));
-          break;
-        case 2:
-          p.set_attribute(attribute_starts[j], U16_CLAMP(U16_QUANTIZE(scaled_value)));
-          break;
-        case 3:
-          p.set_attribute(attribute_starts[j], I16_CLAMP(I16_QUANTIZE(scaled_value)));
-          break;
-        case 4:
-          p.set_attribute(attribute_starts[j], U32_CLAMP(U32_QUANTIZE(scaled_value)));
-          break;
-        case 5:
-          p.set_attribute(attribute_starts[j], I32_CLAMP(I32_QUANTIZE(scaled_value)));
-          break;
-        case 6:
-          p.set_attribute(attribute_starts[j], U64_QUANTIZE(scaled_value));
-          break;
-        case 7:
-          p.set_attribute(attribute_starts[j], I64_QUANTIZE(scaled_value));
-          break;
-        case 8:
-          p.set_attribute(attribute_starts[j], (float)(scaled_value));
-          break;
-        case 9:
-          p.set_attribute(attribute_starts[j], scaled_value);
-          break;
-        }
-      }
-
-      laswriter->write_point(&p);
-      laswriter->update_inventory(&p);
+      laswriter->write_point(&point);
+      laswriter->update_inventory(&point);
     }
 
     laswriter->update_header(&header, true);
     laswriter->close();
     delete laswriter;
-  }
-  catch (std::exception const& e)
-  {
-    Rcerr << e.what() << std::endl;
-  }
+}
+
+void set_global_enconding(LASheader &header, List encoding)
+{
+  if (encoding["GPS Time Type"]) header.set_global_encoding_bit(0);
+  if (encoding["Waveform Data Packets Internal"]) header.set_global_encoding_bit(1);
+  if (encoding["Waveform Data Packets External"]) header.set_global_encoding_bit(2);
+  if (encoding["Synthetic Return Numbers"]) header.set_global_encoding_bit(3);
+  if (encoding["WKT"]) header.set_global_encoding_bit(4);
+  if (encoding["Aggregate Model"]) header.set_global_encoding_bit(5);
 }
 
 void set_guid(LASheader &header, const char* guid)
@@ -502,54 +353,30 @@ int get_point_data_record_length(int point_data_format)
 {
   switch (point_data_format)
   {
-  case 0:
-    return 20;
-    break;
-  case 1:
-    return 28;
-    break;
-  case 2:
-    return 26;
-    break;
-  case 3:
-    return 34;
-    break;
-  case 4:
-    return 57;
-    break;
-  case 5:
-    return 63;
-    break;
-  case 6:
-    return 30;
-    break;
-  case 7:
-    return 36;
-    break;
-  case 8:
-    return 38;
-    break;
-  case 9:
-    return 59;
-    break;
-  case 10:
-    return 67;
-    break;
-  default:
-    throw std::runtime_error("point_data_format out of range.");
-    break;
+    case 0: return 20; break;
+    case 1: return 28; break;
+    case 2: return 26; break;
+    case 3: return 34; break;
+    case 4: return 57; break;
+    case 5: return 63; break;
+    case 6: return 30; break;
+    case 7: return 36; break;
+    case 8: return 38; break;
+    case 9: return 59; break;
+    case 10: return 67; break;
+    default: stop("point_data_format out of range."); break;
   }
 }
 
-/* attributes type:
- * type = 0 : unsigned char
- * type = 1 : char
- * type = 2 : unsigned short
- * type = 3 : short
- * type = 4 : unsigned int
- * type = 5 : int
- * type = 6 : unsigned int64
- * type = 7 : int64
- * type = 8 : float  (try not to use)
- * type = 9 : double (try not to use)
+/* attributes data_type:
+ * data_type = 0 : unsigned char
+ * data_type = 1 : char
+ * data_type = 2 : unsigned short
+ * data_type = 3 : short
+ * data_type = 4 : unsigned int
+ * data_type = 5 : int
+ * data_type = 6 : unsigned int64
+ * data_type = 7 : int64
+ * data_type = 8 : float  (try not to use)
+ * data_type = 9 : double (try not to use)
  */

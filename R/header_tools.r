@@ -1,4 +1,4 @@
-#' Public header block tools
+#' Public Header Block Tools
 #'
 #' Create or update a header for a las file from a dataset. A las file consists of two parts. A
 #' header that describes the data and the data itself. These functions make valid headers (public
@@ -10,9 +10,10 @@
 #'
 #' @param data data.frame or data.table
 #' @param header list. A header
-#'
+#' @family header_tools
 #' @return A list containing the metadata required to write a las file.
 #' @export
+#'
 #' @examples
 #' lasdata = data.frame(X = c(339002.889, 339002.983, 339002.918),
 #'                      Y = c(5248000.515, 5248000.478, 5248000.318),
@@ -30,14 +31,42 @@
 #'                      treeID = c(1L, 1L, 1L))
 #'
 #' lasheader = header_create(lasdata)
+#' @name public_header_block_tools
+#' @rdname public_header_block_tools
 header_create = function(data)
 {
   fields = names(data)
 
+  if (nrow(data) > 0L)
+  {
+    npts = nrow(data)
+    minx = min(data$X)
+    miny = min(data$Y)
+    minz = min(data$Z)
+    maxx = max(data$X)
+    maxy = max(data$Y)
+    maxz = max(data$Z)
+  }
+  else
+  {
+    npts = 0L
+    minx = 0
+    miny = 0
+    minz = 0
+    maxx = 0
+    maxy = 0
+    maxz = 0
+  }
+
   header = list()
   header[["File Signature"]] = "LASF"
   header[["File Source ID"]] = 0L
-  header[["Global Encoding"]] = 0L
+  header[["Global Encoding"]] = list(`GPS Time Type` = TRUE,
+                                     `Waveform Data Packets Internal` = FALSE,
+                                     `Waveform Data Packets External` = FALSE,
+                                     `Synthetic Return Numbers` = FALSE,
+                                      WKT = FALSE,
+                                     `Aggregate Model` = FALSE)
   header[["Project ID - GUID"]] = uuid::UUIDgenerate()
   header[["Version Major"]] = 1L
   header[["Version Minor"]] = 2L
@@ -47,13 +76,13 @@ header_create = function(data)
   header[["File Creation Year"]] = as.numeric(strftime(Sys.time(), format = "%Y"))
   header[["Header Size"]] = 227
   header[["Offset to point data"]] = 227
-  header[["Number of point records"]] = dim(data)[1]
-  header[["Min X"]] = min(data$X)
-  header[["Min Y"]] = min(data$Y)
-  header[["Min Z"]] = min(data$Z)
-  header[["Max X"]] = max(data$X)
-  header[["Max Y"]] = max(data$Y)
-  header[["Max Z"]] = max(data$Z)
+  header[["Number of point records"]] = npts
+  header[["Min X"]] = minx
+  header[["Min Y"]] = miny
+  header[["Min Z"]] = minz
+  header[["Max X"]] = maxx
+  header[["Max Y"]] = maxy
+  header[["Max Z"]] = maxz
   header[["X offset"]] = header[["Min X"]]
   header[["Y offset"]] = header[["Min Y"]]
   header[["Z offset"]] = header[["Min Z"]]
@@ -61,31 +90,33 @@ header_create = function(data)
   header[["Y scale factor"]] = 0.01
   header[["Z scale factor"]] = 0.01
 
-  if("ReturnNumber" %in% fields) {
-    number_of <- fast_table(data$ReturnNumber, 5L)
-    header[["Number of 1st return"]] <- number_of[1]
-    header[["Number of 2nd return"]] <- number_of[2]
-    header[["Number of 3rd return"]] <- number_of[3]
-    header[["Number of 4th return"]] <- number_of[4]
-    header[["Number of 5th return"]] <- number_of[5]
-  }
+  if ("ReturnNumber" %in% fields)
+    header[["Number of points by return"]] <- fast_table(data$ReturnNumber, 5L)
+  else
+    header[["Number of points by return"]] <- rep(0L,5)
 
-  if("NIR" %in% fields) { # format 8
+  if ("NIR" %in% fields) # format 8
+  {
     header[["Point Data Format ID"]] = 8
     header[["Point Data Record Length"]] = 38
   }
-  else if("gpstime" %in% fields) { # format 1, 3, 6, 7
-    if(all(c("R", "G", "B") %in% fields)) { # format 3 (6 not supported)
+  else if ("gpstime" %in% fields) # format 1, 3, 6, 7
+  {
+    if (all(c("R", "G", "B") %in% fields))  # format 3 (6 not supported)
+    {
       header[["Point Data Format ID"]] = 3
       header[["Point Data Record Length"]] = 34
     }
-    else { # format 1 (7 not supported)
+    else # format 1 (7 not supported)
+    {
       header[["Point Data Format ID"]] = 1
       header[["Point Data Record Length"]] = 28
     }
   }
-  else { # format 0 or 2
-    if(all(c("R", "G", "B") %in% fields)) {
+  else # format 0 or 2
+  {
+    if (all(c("R", "G", "B") %in% fields))
+    {
       header[["Point Data Format ID"]] = 2
       header[["Point Data Record Length"]] = 26
     }
@@ -101,35 +132,52 @@ header_create = function(data)
 }
 
 #' @export
-#' @rdname header_create
+#' @rdname public_header_block_tools
 header_update = function(header, data)
 {
   fields = names(data)
 
-  if("ReturnNumber" %in% fields)
+  if (nrow(data) > 0L)
   {
-    number_of <- fast_table(data$ReturnNumber, 5L)
-    header[["Number of 1st return"]] <- number_of[1]
-    header[["Number of 2nd return"]] <- number_of[2]
-    header[["Number of 3rd return"]] <- number_of[3]
-    header[["Number of 4th return"]] <- number_of[4]
-    header[["Number of 5th return"]] <- number_of[5]
+    npts = nrow(data)
+    minx = min(data$X)
+    miny = min(data$Y)
+    minz = min(data$Z)
+    maxx = max(data$X)
+    maxy = max(data$Y)
+    maxz = max(data$Z)
+  }
+  else
+  {
+    npts = 0L
+    minx = 0
+    miny = 0
+    minz = 0
+    maxx = 0
+    maxy = 0
+    maxz = 0
   }
 
-  header[["Number of point records"]] <- nrow(data)
-  header["Min X"] <- min(data$X)
-  header["Min Y"] <- min(data$Y)
-  header["Min Z"] <- min(data$Z)
-  header["Max X"] <- max(data$X)
-  header["Max Y"] <- max(data$Y)
-  header["Max Z"] <- max(data$Z)
+  if ("ReturnNumber" %in% fields)
+  {
+    n <- if (header[["Version Minor"]] < 4) 5L else 15L
+    header[["Number of points by return"]] <- fast_table(data$ReturnNumber, n)
+  }
+
+  header[["Number of point records"]] = npts
+  header[["Min X"]] = minx
+  header[["Min Y"]] = miny
+  header[["Min Z"]] = minz
+  header[["Max X"]] = maxx
+  header[["Max Y"]] = maxy
+  header[["Max Z"]] = maxz
 
   return(header)
 }
 
-#' Variable length records tools
+#' Extra Bytes Attributes Tools
 #'
-#' Functions that update a header to describe variable length records according to the
+#' Functions that update a header to describe Extra Bytes Attributes according to the
 #' \href{https://www.asprs.org/a/society/committees/standards/LAS_1_4_r13.pdf}{LAS specifications}
 #'
 #' @param header list
@@ -142,6 +190,7 @@ header_update = function(header, data)
 #' this value that will be considered as NA. NULL if not relevant.
 #' @param data vector. Data that must be added in the extrabytes attributes.
 #'
+#' @family header_tools
 #' @examples
 #' data = data.frame(X = c(339002.889, 339002.983, 339002.918),
 #'                   Y = c(5248000.515, 5248000.478, 5248000.318),
@@ -164,6 +213,8 @@ header_update = function(header, data)
 #' lasheader = header_add_extrabytes(lasheader, data$treeID, "treeID", "An id for each tree")
 #' lasheader[["Variable Length Records"]]
 #' @export
+#' @name extra_bytes_attribute_tools
+#' @rdname extra_bytes_attribute_tools
 header_add_extrabytes = function(header, data, name, desc)
 {
   stopifnot(is.list(header), is.vector(data), is.character(name), is.character(desc))
@@ -220,7 +271,7 @@ header_add_extrabytes = function(header, data, name, desc)
 }
 
 #' @export
-#' @rdname header_add_extrabytes
+#' @rdname extra_bytes_attribute_tools
 header_add_extrabytes_manual = function(header, name, desc, type, offset = NULL, scale = NULL, max = NULL, min = NULL, NA_value = NULL)
 {
   type = as.integer(type)
@@ -275,6 +326,101 @@ header_add_extrabytes_manual = function(header, name, desc, type, offset = NULL,
   header$`Variable Length Records`$Extra_Bytes$`Extra Bytes Description`[[name]] = description
 
   return(header)
+}
+
+#' Coordinate Reference System Tools
+#'
+#' Functions that update a header to describe coordinates reference system according to the
+#' \href{https://www.asprs.org/a/society/committees/standards/LAS_1_4_r13.pdf}{LAS specifications}
+#'
+#' @param header list
+#' @param epsg integer. An EPSG code
+#' @param WKT string. A string of an WKT OGC CS
+#' @family header_tools
+#' @export
+#' @name crs_tools
+#' @rdname crs_tools
+header_get_epsg = function(header)
+{
+  pos <- where_is_epsg(header)
+
+  if (pos == 0)
+    return(0)
+  else
+    return(header[["Variable Length Records"]][["GeoKeyDirectoryTag"]][["tags"]][[pos]][["value offset"]])
+}
+
+#' @export
+#' @rdname crs_tools
+header_set_epsg = function(header, epsg)
+{
+  pos <- where_is_epsg(header)
+
+  if (pos == 0)
+  {
+    if (is.null(header[["Variable Length Records"]][["GeoKeyDirectoryTag"]]))
+    {
+      header[["Variable Length Records"]][["GeoKeyDirectoryTag"]][["reserved"]]            <- 0
+      header[["Variable Length Records"]][["GeoKeyDirectoryTag"]][["user ID"]]             <- "LASF_Projection"
+      header[["Variable Length Records"]][["GeoKeyDirectoryTag"]][["record ID"]]           <- 34735
+      header[["Variable Length Records"]][["GeoKeyDirectoryTag"]][["length after header"]] <- 40
+      header[["Variable Length Records"]][["GeoKeyDirectoryTag"]][["description"]]         <- "Geo Key Directory Tag"
+      header[["Variable Length Records"]][["GeoKeyDirectoryTag"]][["tags"]]                <- vector("list", 1)
+      pos <- 1
+    }
+    else
+    {
+      pos <- length(header[["Variable Length Records"]][["GeoKeyDirectoryTag"]]) + 1
+    }
+  }
+
+  header[["Variable Length Records"]][["GeoKeyDirectoryTag"]][["tags"]][[pos]] <- list(key = 3072L, `tiff tag location` = 0L, count = 1L, `value offset` = as.integer(epsg))
+  return(header)
+}
+
+#' @export
+#' @rdname crs_tools
+header_get_wktcs = function(header)
+{
+  wkt = header[["Variable Length Records"]][["WKT OGC CS"]][["WKT OGC COORDINATE SYSTEM"]]
+
+  if (is.null(wkt))
+    return("")
+  else
+    return(wkt)
+}
+
+#' @export
+#' @rdname crs_tools
+header_set_wktcs = function(header, WKT)
+{
+  if (is.null(header[["Variable Length Records"]]))
+    header[["Variable Length Records"]] <- list()
+
+  if (is.null(header[["Variable Length Records"]][["WKT OGC CS"]]))
+    header[["Variable Length Records"]][["WKT OGC CS"]] <- list()
+
+
+  header[["Variable Length Records"]][["WKT OGC CS"]][["reserved"]]                  <- 43707L
+  header[["Variable Length Records"]][["WKT OGC CS"]][["user ID"]]                   <-  "LASF_Projection"
+  header[["Variable Length Records"]][["WKT OGC CS"]][["record ID"]]                 <- 2112
+  header[["Variable Length Records"]][["WKT OGC CS"]][["description"]]               <- "WKT Information"
+  header[["Variable Length Records"]][["WKT OGC CS"]][["WKT OGC COORDINATE SYSTEM"]] <- WKT
+  header[["Global Encoding"]][["WKT"]] <- TRUE
+  return(header)
+}
+
+where_is_epsg = function(header)
+{
+  tags = header[["Variable Length Records"]][["GeoKeyDirectoryTag"]][["tags"]]
+
+  for (i in seq_along(tags))
+  {
+    if (tags[[i]]$key == 3072)
+      return(i)
+  }
+
+  return(0)
 }
 
 #allowed_fields = c("X", "Y", "Z", "gpstime", "Intensity", "ReturnNumber", "NumberOfReturns", "ScanDirectionFlag", "EdgeOfFlightline", "Classification", "ScanAngle", "UserData", "PointSourceID", "R", "G", "B", "NIR")

@@ -1,6 +1,6 @@
 context("writelas")
 
-lazfile <- system.file("extdata", "example.laz", package="rlas")
+lazfile <- system.file("extdata", "example.laz", package = "rlas")
 las = read.las(lazfile)
 header = read.lasheader(lazfile)
 write_path = file.path(tempdir(), "temp.las")
@@ -26,6 +26,21 @@ test_that("write.las writes epsg code",{
 
   expect_equal(las, wlas)
   expect_equal(wheader$`Variable Length Records`$GeoKeyDirectoryTag$tags[[1]]$`value offset`, 26917)
+})
+
+test_that("write.las writes WKT string",{
+  new_header = header
+  new_header$`Global Encoding`$WKT = TRUE
+  new_header$`Variable Length Records`$GeoKeyDirectoryTag <- NULL
+  new_header$`Variable Length Records`$`WKT OGC CS`$`WKT OGC COORDINATE SYSTEM` = "STRING \"STRING"
+
+  write.las(write_path, new_header, las)
+  wlas = read.las(write_path)
+  wheader = read.lasheader(write_path)
+
+  expect_equal(las, wlas)
+  expect_equal(wheader$`Global Encoding`$WKT, TRUE)
+  expect_equal(wheader$`Variable Length Records`$`WKT OGC CS`$`WKT OGC COORDINATE SYSTEM`, "STRING \"STRING")
 })
 
 test_that("UUID is properly written",{
@@ -82,7 +97,7 @@ test_that("write.las writes Extra Bytes correctly",{
 })
 
 
-test_that("write.las skip extra bytes if empty VLR", {
+test_that("write.las skips extra bytes if empty VLR", {
   new_header = header
   new_header$`Variable Length Records` = list()
   write.las(write_path, new_header, las)
@@ -94,7 +109,7 @@ test_that("write.las skip extra bytes if empty VLR", {
   expect_equal(length(wheader$`Variable Length Records`), 0)
 })
 
-test_that("write.las skiped selectively extra bytes if missing VLR",{
+test_that("write.las skips selectively extra bytes if missing VLR",{
   new_header = header
   new_header$`Variable Length Records`$Extra_Bytes$`Extra Bytes Description`$Amplitude = NULL
 
@@ -107,18 +122,46 @@ test_that("write.las skiped selectively extra bytes if missing VLR",{
   expect_equal(wlas, las[, -c(17)])
 })
 
-test_that("write.las write correctly too long extra byte descriptions and name",{
+test_that("write.las writes LAS 1.4",{
   new_header = header
-  new_header$`Variable Length Records`$Extra_Bytes$`Extra Bytes Description`$Amplitude$description = "A too long description according to las specification"
+  new_header$`Version Minor` = 4
+  new_header$`Header Size`   = 375
 
-  suppressWarnings(write.las(write_path, new_header, las))
+  write.las(write_path, new_header, las)
 
+  wlas    <- read.las(write_path)
   wheader <- read.lasheader(write_path)
 
-  desc = wheader$`Variable Length Records`$Extra_Bytes$`Extra Bytes Description`$Amplitude$description
-
-  expect_equal(desc, "A too long description accordin")
+  expect_true(new_header$`Version Minor` == 4L)
+  expect_equal(length(wheader$`Number of points by return`), 15)
+  expect_equal(las, wlas)
 })
+
+test_that("write.las writes LAS 1.4 point format 6",{
+  new_header = header
+  new_header$`Version Minor` = 4
+  new_header$`Point Data Format ID` = 6
+  new_header$`Header Size`   = 375
+
+  las$Overlap_flag = TRUE
+  las$ScannerChannel = 1L
+
+  data.table::setnames(las, "ScanAngleRank", "ScanAngle")
+  data.table::setcolorder(las, c("X", "Y", "Z", "gpstime", "Intensity", "ReturnNumber", "NumberOfReturns",
+                                 "ScanDirectionFlag", "EdgeOfFlightline", "Classification", "ScannerChannel",
+                                 "Synthetic_flag", "Keypoint_flag", "Withheld_flag", "Overlap_flag",
+                                 "ScanAngle", "UserData", "PointSourceID", "Amplitude", "Pulse width"))
+
+  write.las(write_path, new_header, las)
+
+  wlas    <- read.las(write_path)
+  wheader <- read.lasheader(write_path)
+
+  expect_true(new_header$`Version Minor` == 4L)
+  expect_equal(length(wheader$`Number of points by return`), 15)
+  expect_equal(las, wlas, tolerance = 0.00015)
+})
+
 
 
 
