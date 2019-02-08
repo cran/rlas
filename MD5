@@ -1,7 +1,7 @@
 8f0e2cd40e05189ec81232da84bd6e1a *COPYING
-a36a2c3899aad3094fcb9ca5f8dc32e2 *DESCRIPTION
+f5275491b5d75d17ff142821792aebe9 *DESCRIPTION
 791d645601048e8482bc3936818dade2 *NAMESPACE
-08a6875e72377a08fbfdf31d285c3677 *NEWS.md
+313e37cfc4ee9726e2a8d0c0452cb99c *NEWS.md
 cc03efb25001a1563688be578d7b8476 *R/RcppExports.R
 f2efbdc7bd7189359e49e77cbb5d6c25 *R/check_content.r
 cfd027bf2c1897376b502b4afe547fb0 *R/deprecated.r
@@ -146,9 +146,9 @@ e2334ebf8f2853a3f82d6329d2e1ec82 *src/Makevars.win
 ddbfa2e7dbccc91f87403ab37598fba4 *src/RcppExports.cpp
 e34a6d30aea61f0c785974a3c89f0ecd *src/fast.cpp
 0dce7af75c882ebc736c281803ad096f *src/readLAS.cpp
-9427b4ab078868cb9ae67d9f1bc0c405 *src/readheader.cpp
+56626e68563ca2049e71db25e51b604a *src/readheader.cpp
 75315bbcfeb24ca4236d04093f463a34 *src/rlasextrabytesattributes.cpp
-a367e50684944e62f2484405fcf723f7 *src/rlasstreamer.cpp
+8b70af6b9b6f880dc784848395fa97d3 *src/rlasstreamer.cpp
 c7a5431f578eb574c138c40807bc1c2f *src/writeLAS.cpp
 d97649393f82e9b5636a8d8898406bb3 *src/writeLAX.cpp
 558312fbcf6b8f64b77af18fe6be73e9 *tests/testthat.R
