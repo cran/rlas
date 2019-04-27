@@ -642,8 +642,6 @@ List RLASstreamer::terminate()
       }
     }
 
-    lasdata.names() = attr_name;
-
     if (nwithheld > 0)
     {
       std::string msg = std::string("There are ") + std::to_string(nwithheld)  + std::string(" points flagged 'withheld'.");
@@ -656,7 +654,8 @@ List RLASstreamer::terminate()
       Rf_warningcall(R_NilValue, msg.c_str());
     }
 
-    return(lasdata);
+    lasdata.names() = attr_name;
+    return lasdata;
   }
 }
 

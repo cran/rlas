@@ -45,9 +45,7 @@ typedef struct LASpoint14
   U8 scan_direction_flag : 1;
   U8 edge_of_flight_line : 1;
   U8 legacy_classification : 5;
-  U8 legacy_synthetic_flag : 1;
-  U8 legacy_keypoint_flag  : 1;
-  U8 legacy_withheld_flag  : 1;
+  U8 legacy_flags : 3;
   I8 legacy_scan_angle_rank;
   U8 user_data;
   U16 point_source_ID;
@@ -61,7 +59,13 @@ typedef struct LASpoint14
   U8 return_number : 4;
   U8 number_of_returns : 4;
 
-  U8 dummy[3]; // for 8 byte alignment of the GPS time
+  // LASlib internal use only
+  U8 deleted_flag;
+
+  // for 8 byte alignment of the GPS time
+  U8 dummy[2];
+
+  // compressed LASzip 1.4 points only
   BOOL gps_time_change;
 
   F64 gps_time;
@@ -399,9 +403,7 @@ BOOL LASreadItemCompressed_POINT14_v3::chunk_sizes()
   return TRUE;
 }
 
-static U32 global_current_context = 0;
-
-BOOL LASreadItemCompressed_POINT14_v3::init(const U8* item)
+BOOL LASreadItemCompressed_POINT14_v3::init(const U8* item, U32& context)
 {
   /* for layered compression 'dec' only hands over the stream */
 
@@ -692,7 +694,7 @@ BOOL LASreadItemCompressed_POINT14_v3::init(const U8* item)
   /* set scanner channel as current context */
 
   current_context = ((LASpoint14*)item)->scanner_channel;
-  global_current_context = current_context; // (global variable) a bit of a hack
+  context = current_context; // the POINT14 reader sets context for all other items
 
   /* create and init models and decompressors */
 
@@ -701,7 +703,7 @@ BOOL LASreadItemCompressed_POINT14_v3::init(const U8* item)
   return TRUE;
 }
 
-inline void LASreadItemCompressed_POINT14_v3::read(U8* item)
+inline void LASreadItemCompressed_POINT14_v3::read(U8* item, U32& context)
 {
   // get last
 
@@ -738,7 +740,7 @@ inline void LASreadItemCompressed_POINT14_v3::read(U8* item)
     }
     // switch context to current scanner channel
     current_context = scanner_channel;
-    global_current_context = current_context;
+    context = current_context; // the POINT14 reader sets context for all other items
 
     // get last for new context
     last_item = contexts[current_context].last_item;
@@ -891,10 +893,14 @@ inline void LASreadItemCompressed_POINT14_v3::read(U8* item)
     }
     ((LASpoint14*)last_item)->classification = dec_classification->decodeSymbol(contexts[current_context].m_classification[ccc]);
 
-    // legacy copies
+    // update the legacy copy
     if (((LASpoint14*)last_item)->classification < 32)
     {
       ((LASpoint14*)last_item)->legacy_classification = ((LASpoint14*)last_item)->classification;
+    }
+    else
+    {
+      ((LASpoint14*)last_item)->legacy_classification = 0;
     }
   }
 
@@ -913,12 +919,10 @@ inline void LASreadItemCompressed_POINT14_v3::read(U8* item)
     U32 flags = dec_flags->decodeSymbol(contexts[current_context].m_flags[last_flags]);
     ((LASpoint14*)last_item)->edge_of_flight_line = !!(flags & (1 << 5));
     ((LASpoint14*)last_item)->scan_direction_flag = !!(flags & (1 << 4));
-    ((LASpoint14*)last_item)->classification_flags = (flags & 15);
+    ((LASpoint14*)last_item)->classification_flags = (flags & 0x0F);
 
     // legacy copies
-    ((LASpoint14*)last_item)->legacy_synthetic_flag = !!(((LASpoint14*)last_item)->classification_flags & (1 << 0));
-    ((LASpoint14*)last_item)->legacy_keypoint_flag = !!(((LASpoint14*)last_item)->classification_flags & (1 << 1));
-    ((LASpoint14*)last_item)->legacy_withheld_flag = !!(((LASpoint14*)last_item)->classification_flags & (1 << 2));
+    ((LASpoint14*)last_item)->legacy_flags = (flags & 0x07);
   }
 
   ////////////////////////////////////////
@@ -1218,7 +1222,7 @@ BOOL LASreadItemCompressed_RGB14_v3::chunk_sizes()
   return TRUE;
 }
 
-BOOL LASreadItemCompressed_RGB14_v3::init(const U8* item)
+BOOL LASreadItemCompressed_RGB14_v3::init(const U8* item, U32& context)
 {
   /* for layered compression 'dec' only hands over the stream */
 
@@ -1290,7 +1294,7 @@ BOOL LASreadItemCompressed_RGB14_v3::init(const U8* item)
 
   /* set scanner channel as current context */
 
-  current_context = global_current_context; // (global variable) a bit of a hack
+  current_context = context; // all other items use context set by POINT14 reader
 
   /* create and init models and decompressors */
 
@@ -1299,7 +1303,7 @@ BOOL LASreadItemCompressed_RGB14_v3::init(const U8* item)
   return TRUE;
 }
 
-inline void LASreadItemCompressed_RGB14_v3::read(U8* item)
+inline void LASreadItemCompressed_RGB14_v3::read(U8* item, U32& context)
 {
   // get last
 
@@ -1307,9 +1311,9 @@ inline void LASreadItemCompressed_RGB14_v3::read(U8* item)
 
   // check for context switch
 
-  if (current_context != global_current_context)
+  if (current_context != context)
   {
-    current_context = global_current_context;
+    current_context = context; // all other items use context set by POINT14 reader
     if (contexts[current_context].unused)
     {
       createAndInitModelsAndDecompressors(current_context, (U8*)last_item);
@@ -1562,7 +1566,7 @@ BOOL LASreadItemCompressed_RGBNIR14_v3::chunk_sizes()
   return TRUE;
 }
 
-BOOL LASreadItemCompressed_RGBNIR14_v3::init(const U8* item)
+BOOL LASreadItemCompressed_RGBNIR14_v3::init(const U8* item, U32& context)
 {
   /* for layered compression 'dec' only hands over the stream */
 
@@ -1670,7 +1674,7 @@ BOOL LASreadItemCompressed_RGBNIR14_v3::init(const U8* item)
 
   /* set scanner channel as current context */
 
-  current_context = global_current_context; // (global variable) a bit of a hack
+  current_context = context; // all other items use context set by POINT14 reader
 
   /* create and init models and decompressors */
 
@@ -1679,7 +1683,7 @@ BOOL LASreadItemCompressed_RGBNIR14_v3::init(const U8* item)
   return TRUE;
 }
 
-inline void LASreadItemCompressed_RGBNIR14_v3::read(U8* item)
+inline void LASreadItemCompressed_RGBNIR14_v3::read(U8* item, U32& context)
 {
   // get last
 
@@ -1687,9 +1691,9 @@ inline void LASreadItemCompressed_RGBNIR14_v3::read(U8* item)
 
   // check for context switch
 
-  if (current_context != global_current_context)
+  if (current_context != context)
   {
-    current_context = global_current_context;
+    current_context = context; // all other items use context set by POINT14 reader
     if (contexts[current_context].unused)
     {
       createAndInitModelsAndDecompressors(current_context, (U8*)last_item);
@@ -1697,7 +1701,7 @@ inline void LASreadItemCompressed_RGBNIR14_v3::read(U8* item)
     }
   }
 
-  // dempress
+  // decompress
 
   ////////////////////////////////////////
   // decompress RGB layer 
@@ -1807,11 +1811,11 @@ inline void LASreadItemCompressed_RGBNIR14_v3::read(U8* item)
     {
       ((U16*)item)[3] |= (last_item[3]&0xFF00);
     }
-    contexts[current_context].last_item[3] = ((U16*)item)[3];
+    last_item[3] = ((U16*)item)[3];
   }
   else
   {
-    ((U16*)item)[3] = contexts[current_context].last_item[3];
+    ((U16*)item)[3] = last_item[3];
   }
 }
 
@@ -1950,7 +1954,7 @@ BOOL LASreadItemCompressed_WAVEPACKET14_v3::chunk_sizes()
   return TRUE;
 }
 
-BOOL LASreadItemCompressed_WAVEPACKET14_v3::init(const U8* item)
+BOOL LASreadItemCompressed_WAVEPACKET14_v3::init(const U8* item, U32& context)
 {
   /* for layered compression 'dec' only hands over the stream */
 
@@ -2022,7 +2026,7 @@ BOOL LASreadItemCompressed_WAVEPACKET14_v3::init(const U8* item)
 
   /* set scanner channel as current context */
 
-  current_context = global_current_context; // (global variable) a bit of a hack
+  current_context = context; // all other items use context set by POINT14 reader
 
   /* create and init models and decompressors */
 
@@ -2031,7 +2035,7 @@ BOOL LASreadItemCompressed_WAVEPACKET14_v3::init(const U8* item)
   return TRUE;
 }
 
-inline void LASreadItemCompressed_WAVEPACKET14_v3::read(U8* item)
+inline void LASreadItemCompressed_WAVEPACKET14_v3::read(U8* item, U32& context)
 {
   // get last
 
@@ -2039,9 +2043,9 @@ inline void LASreadItemCompressed_WAVEPACKET14_v3::read(U8* item)
 
   // check for context switch
 
-  if (current_context != global_current_context)
+  if (current_context != context)
   {
-    current_context = global_current_context;
+    current_context = context; // all other items use context set by POINT14 reader
     if (contexts[current_context].unused)
     {
       createAndInitModelsAndDecompressors(current_context, last_item);
@@ -2250,7 +2254,7 @@ BOOL LASreadItemCompressed_BYTE14_v3::chunk_sizes()
   return TRUE;
 }
 
-BOOL LASreadItemCompressed_BYTE14_v3::init(const U8* item)
+BOOL LASreadItemCompressed_BYTE14_v3::init(const U8* item, U32& context)
 {
   U32 i;
 
@@ -2355,7 +2359,7 @@ BOOL LASreadItemCompressed_BYTE14_v3::init(const U8* item)
 
   /* set scanner channel as current context */
 
-  current_context = global_current_context; // (global variable) a bit of a hack
+  current_context = context; // all other items use context set by POINT14 reader
 
   /* create and init models and decompressors */
 
@@ -2364,7 +2368,7 @@ BOOL LASreadItemCompressed_BYTE14_v3::init(const U8* item)
   return TRUE;
 }
 
-inline void LASreadItemCompressed_BYTE14_v3::read(U8* item)
+inline void LASreadItemCompressed_BYTE14_v3::read(U8* item, U32& context)
 {
   // get last
 
@@ -2372,9 +2376,9 @@ inline void LASreadItemCompressed_BYTE14_v3::read(U8* item)
 
   // check for context switch
 
-  if (current_context != global_current_context)
+  if (current_context != context)
   {
-    current_context = global_current_context;
+    current_context = context; // all other items use context set by POINT14 reader
     if (contexts[current_context].unused)
     {
       createAndInitModelsAndDecompressors(current_context, (U8*)last_item);

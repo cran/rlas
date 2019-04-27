@@ -26,8 +26,6 @@
 
     see corresponding header file
 
-     6  may  2018 -- by Jean-Romain Roussel - l173-176 use memcpy instead of strncpy
-
 ===============================================================================
 */
 #include "laswriter_bin.hpp"
@@ -249,13 +247,13 @@ BOOL LASwriterBIN::update_header(const LASheader* header, BOOL use_inventory, BO
   return TRUE;
 }
 
-I64 LASwriterBIN::close(BOOL update_header)
+I64 LASwriterBIN::close(BOOL update_npoints)
 {
   I64 bytes = 0;
 
   if (stream)
   {
-    if (update_header && p_count != npoints)
+    if (update_npoints && p_count != npoints)
     {
       if (!stream->isSeekable())
       {

@@ -5,7 +5,7 @@
   
   CONTENTS:
   
-    Prototype for decompressing the *newest* point types 6 to 10 of LAS 1.4 
+    Native extension for decompressing the *new* point types 6 to 10 of LAS 1.4 
 
   PROGRAMMERS:
 
@@ -13,7 +13,7 @@
 
   COPYRIGHT:
 
-    (c) 2007-2017, martin isenburg, rapidlasso - fast tools to catch reality
+    (c) 2007-2019, martin isenburg, rapidlasso - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
     terms of the GNU Lesser General Licence as published by the Free Software
@@ -24,6 +24,8 @@
   
   CHANGE HISTORY:
   
+    19 March 2019 -- set "legacy classification" to zero if "classification > 31"  
+    28 August 2017 -- moving 'context' from global development hack to interface  
     19 April 2017 -- support for selective decompression for new LAS 1.4 points 
     22 June 2016 -- created after Island beat Austria 2:1 in the EM2016
   
@@ -47,8 +49,8 @@ public:
   LASreadItemCompressed_POINT14_v3(ArithmeticDecoder* dec, const U32 decompress_selective=LASZIP_DECOMPRESS_SELECTIVE_ALL);
 
   BOOL chunk_sizes();
-  BOOL init(const U8* item);
-  void read(U8* item);
+  BOOL init(const U8* item, U32& context); // context is set
+  void read(U8* item, U32& context);       // context is set
 
   ~LASreadItemCompressed_POINT14_v3();
 
@@ -123,8 +125,8 @@ public:
   LASreadItemCompressed_RGB14_v3(ArithmeticDecoder* dec, const U32 decompress_selective=LASZIP_DECOMPRESS_SELECTIVE_ALL);
 
   BOOL chunk_sizes();
-  BOOL init(const U8* item);
-  void read(U8* item); //, U32 current_context=0);
+  BOOL init(const U8* item, U32& context); // context is only read
+  void read(U8* item, U32& context);       // context is only read
 
   ~LASreadItemCompressed_RGB14_v3();
 
@@ -160,8 +162,8 @@ public:
   LASreadItemCompressed_RGBNIR14_v3(ArithmeticDecoder* dec, const U32 decompress_selective=LASZIP_DECOMPRESS_SELECTIVE_ALL);
 
   BOOL chunk_sizes();
-  BOOL init(const U8* item);
-  void read(U8* item); //, U32 current_context=0);
+  BOOL init(const U8* item, U32& context); // context is only read
+  void read(U8* item, U32& context);       // context is only read
 
   ~LASreadItemCompressed_RGBNIR14_v3();
 
@@ -202,8 +204,8 @@ public:
   LASreadItemCompressed_WAVEPACKET14_v3(ArithmeticDecoder* dec, const U32 decompress_selective=LASZIP_DECOMPRESS_SELECTIVE_ALL);
 
   BOOL chunk_sizes();
-  BOOL init(const U8* item);
-  void read(U8* item); //, U32 current_context=0);
+  BOOL init(const U8* item, U32& context); // context is only read
+  void read(U8* item, U32& context);       // context is only read
 
   ~LASreadItemCompressed_WAVEPACKET14_v3();
 
@@ -239,8 +241,8 @@ public:
   LASreadItemCompressed_BYTE14_v3(ArithmeticDecoder* dec, U32 number, const U32 decompress_selective=LASZIP_DECOMPRESS_SELECTIVE_ALL);
 
   BOOL chunk_sizes();
-  BOOL init(const U8* item);
-  void read(U8* item); //, U32 current_context=0);
+  BOOL init(const U8* item, U32& context); // context is only read
+  void read(U8* item, U32& context);       // context is only read
 
   ~LASreadItemCompressed_BYTE14_v3();
 

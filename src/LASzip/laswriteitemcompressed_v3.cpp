@@ -13,7 +13,7 @@
 
   COPYRIGHT:
 
-    (c) 2007-2016, martin isenburg, rapidlasso - fast tools to catch reality
+    (c) 2007-2017, martin isenburg, rapidlasso - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
     terms of the GNU Lesser General Licence as published by the Free Software
@@ -68,7 +68,13 @@ typedef struct LASpoint14
   U8 return_number : 4;
   U8 number_of_returns : 4;
 
-  U8 dummy[3]; // for 8 byte alignment of the GPS time
+  // LASlib internal use only
+  U8 deleted_flag;
+
+  // for 8 byte alignment of the GPS time
+  U8 dummy[2];
+
+  // compressed LASzip 1.4 points only
   BOOL gps_time_change;
 
   F64 gps_time;
@@ -360,9 +366,7 @@ inline BOOL LASwriteItemCompressed_POINT14_v3::createAndInitModelsAndCompressors
   return TRUE;
 }
 
-static U32 global_current_context = 0;
-
-BOOL LASwriteItemCompressed_POINT14_v3::init(const U8* item)
+BOOL LASwriteItemCompressed_POINT14_v3::init(const U8* item, U32& context)
 {
   /* on the first init create outstreams and encoders */
 
@@ -453,7 +457,7 @@ BOOL LASwriteItemCompressed_POINT14_v3::init(const U8* item)
   /* set scanner channel as current context */
 
   current_context = ((LASpoint14*)item)->scanner_channel;
-  global_current_context = current_context; // (global variable) a bit of a hack
+  context = current_context; // the POINT14 writer sets context for all other items
 
   /* create and init entropy models and integer compressors (and init context from item) */
 
@@ -462,7 +466,7 @@ BOOL LASwriteItemCompressed_POINT14_v3::init(const U8* item)
   return TRUE;
 }
 
-inline BOOL LASwriteItemCompressed_POINT14_v3::write(const U8* item)
+inline BOOL LASwriteItemCompressed_POINT14_v3::write(const U8* item, U32& context)
 {
   // get last
 
@@ -562,7 +566,7 @@ inline BOOL LASwriteItemCompressed_POINT14_v3::write(const U8* item)
     }
     // switch context to current scanner channel
     current_context = scanner_channel;
-    global_current_context = current_context;
+    context = current_context; // the POINT14 writer sets context for all other items
   }
 
   // if number of returns is different we compress it
@@ -1206,7 +1210,7 @@ inline BOOL LASwriteItemCompressed_RGB14_v3::createAndInitModelsAndCompressors(U
   return TRUE;
 }
 
-BOOL LASwriteItemCompressed_RGB14_v3::init(const U8* item)
+BOOL LASwriteItemCompressed_RGB14_v3::init(const U8* item, U32& context)
 {
   /* on the first init create outstreams and encoders */
 
@@ -1252,7 +1256,7 @@ BOOL LASwriteItemCompressed_RGB14_v3::init(const U8* item)
 
   /* set scanner channel as current context */
 
-  current_context = global_current_context; // (global variable) a bit of a hack
+  current_context = context; // all other items use context set by POINT14 writer
 
   /* create and init entropy models and integer compressors (and init contect from item) */
 
@@ -1261,7 +1265,7 @@ BOOL LASwriteItemCompressed_RGB14_v3::init(const U8* item)
   return TRUE;
 }
 
-inline BOOL LASwriteItemCompressed_RGB14_v3::write(const U8* item)
+inline BOOL LASwriteItemCompressed_RGB14_v3::write(const U8* item, U32& context)
 {
   // get last
 
@@ -1269,9 +1273,9 @@ inline BOOL LASwriteItemCompressed_RGB14_v3::write(const U8* item)
 
   // check for context switch
 
-  if (current_context != global_current_context)
+  if (current_context != context)
   {
-    current_context = global_current_context;
+    current_context = context; // all other items use context set by POINT14 writer
     if (contexts[current_context].unused)
     {
       createAndInitModelsAndCompressors(current_context, (U8*)last_item);
@@ -1497,7 +1501,7 @@ inline BOOL LASwriteItemCompressed_RGBNIR14_v3::createAndInitModelsAndCompressor
   return TRUE;
 }
 
-BOOL LASwriteItemCompressed_RGBNIR14_v3::init(const U8* item)
+BOOL LASwriteItemCompressed_RGBNIR14_v3::init(const U8* item, U32& context)
 {
   /* on the first init create outstreams and encoders */
 
@@ -1549,7 +1553,7 @@ BOOL LASwriteItemCompressed_RGBNIR14_v3::init(const U8* item)
 
   /* set scanner channel as current context */
 
-  current_context = global_current_context; // (global variable) a bit of a hack
+  current_context = context; // ll other items use context set by POINT14 writer
 
   /* create and init entropy models and integer compressors (and init context from item) */
 
@@ -1558,7 +1562,7 @@ BOOL LASwriteItemCompressed_RGBNIR14_v3::init(const U8* item)
   return TRUE;
 }
 
-inline BOOL LASwriteItemCompressed_RGBNIR14_v3::write(const U8* item)
+inline BOOL LASwriteItemCompressed_RGBNIR14_v3::write(const U8* item, U32& context)
 {
   // get last
 
@@ -1566,9 +1570,9 @@ inline BOOL LASwriteItemCompressed_RGBNIR14_v3::write(const U8* item)
 
   // check for context switch
 
-  if (current_context != global_current_context)
+  if (current_context != context)
   {
-    current_context = global_current_context;
+    current_context = context; // all other items use context set by POINT14 writer
     if (contexts[current_context].unused)
     {
       createAndInitModelsAndCompressors(current_context, (U8*)last_item);
@@ -1828,7 +1832,7 @@ inline BOOL LASwriteItemCompressed_WAVEPACKET14_v3::createAndInitModelsAndCompre
   return TRUE;
 }
 
-BOOL LASwriteItemCompressed_WAVEPACKET14_v3::init(const U8* item)
+BOOL LASwriteItemCompressed_WAVEPACKET14_v3::init(const U8* item, U32& context)
 {
   /* on the first init create outstreams and encoders */
 
@@ -1874,7 +1878,7 @@ BOOL LASwriteItemCompressed_WAVEPACKET14_v3::init(const U8* item)
 
   /* set scanner channel as current context */
 
-  current_context = global_current_context; // (global variable) a bit of a hack
+  current_context = context; // all other items use context set by POINT14 writer
 
   /* create and init entropy models and integer compressors (and init contect from item) */
 
@@ -1883,7 +1887,7 @@ BOOL LASwriteItemCompressed_WAVEPACKET14_v3::init(const U8* item)
   return TRUE;
 }
 
-inline BOOL LASwriteItemCompressed_WAVEPACKET14_v3::write(const U8* item)
+inline BOOL LASwriteItemCompressed_WAVEPACKET14_v3::write(const U8* item, U32& context)
 {
   // get last
 
@@ -1891,9 +1895,9 @@ inline BOOL LASwriteItemCompressed_WAVEPACKET14_v3::write(const U8* item)
 
   // check for context switch
 
-  if (current_context != global_current_context)
+  if (current_context != context)
   {
-    current_context = global_current_context;
+    current_context = context; // all other items use context set by POINT14 writer
     if (contexts[current_context].unused)
     {
       createAndInitModelsAndCompressors(current_context, (U8*)last_item);
@@ -2126,7 +2130,7 @@ inline BOOL LASwriteItemCompressed_BYTE14_v3::createAndInitModelsAndCompressors(
   return TRUE;
 }
 
-BOOL LASwriteItemCompressed_BYTE14_v3::init(const U8* item)
+BOOL LASwriteItemCompressed_BYTE14_v3::init(const U8* item, U32& context)
 {
   U32 i;
 
@@ -2200,7 +2204,7 @@ BOOL LASwriteItemCompressed_BYTE14_v3::init(const U8* item)
 
   /* set scanner channel as current context */
 
-  current_context = global_current_context; // (global variable) a bit of a hack
+  current_context = context; // all other items use context set by POINT14 writer
 
   /* create and init entropy models and integer compressors (and init context from item)  */
 
@@ -2209,7 +2213,7 @@ BOOL LASwriteItemCompressed_BYTE14_v3::init(const U8* item)
   return TRUE;
 }
 
-inline BOOL LASwriteItemCompressed_BYTE14_v3::write(const U8* item)
+inline BOOL LASwriteItemCompressed_BYTE14_v3::write(const U8* item, U32& context)
 {
   // get last
 
@@ -2217,9 +2221,9 @@ inline BOOL LASwriteItemCompressed_BYTE14_v3::write(const U8* item)
 
   // check for context switch
 
-  if (current_context != global_current_context)
+  if (current_context != context)
   {
-    current_context = global_current_context;
+    current_context = context; // all other items use context set by POINT14 writer
     if (contexts[current_context].unused)
     {
       createAndInitModelsAndCompressors(current_context, last_item);
