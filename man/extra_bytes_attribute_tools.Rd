@@ -8,8 +8,17 @@
 \usage{
 header_add_extrabytes(header, data, name, desc)
 
-header_add_extrabytes_manual(header, name, desc, type, offset = NULL,
-  scale = NULL, max = NULL, min = NULL, NA_value = NULL)
+header_add_extrabytes_manual(
+  header,
+  name,
+  desc,
+  type,
+  offset = NULL,
+  scale = NULL,
+  max = NULL,
+  min = NULL,
+  NA_value = NULL
+)
 }
 \arguments{
 \item{header}{list}
@@ -31,7 +40,7 @@ this value that will be considered as NA. NULL if not relevant.}
 }
 \description{
 Functions that update a header to describe Extra Bytes Attributes according to the
-\href{https://www.asprs.org/a/society/committees/standards/LAS_1_4_r13.pdf}{LAS specifications}
+\href{http://www.asprs.org/wp-content/uploads/2019/07/LAS_1_4_r15.pdf}{LAS specifications}
 }
 \examples{
 data = data.frame(X = c(339002.889, 339002.983, 339002.918),
@@ -56,7 +65,8 @@ lasheader = header_add_extrabytes(lasheader, data$treeID, "treeID", "An id for e
 lasheader[["Variable Length Records"]]
 }
 \seealso{
-Other header_tools: \code{\link{crs_tools}},
-  \code{\link{public_header_block_tools}}
+Other header_tools: 
+\code{\link{crs_tools}},
+\code{\link{public_header_block_tools}}
 }
 \concept{header_tools}
