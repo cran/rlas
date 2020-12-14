@@ -1,7 +1,7 @@
 8f0e2cd40e05189ec81232da84bd6e1a *COPYING
-2bd7b4e5fc427ec1e5ff9fbe9ab4d673 *DESCRIPTION
+3c2ec2989e1acfc0e83d487419c5ecfe *DESCRIPTION
 fb7fb93abe790e30de1717a14062eba1 *NAMESPACE
-4d56cbcdd55c0bd7b7515971e83fadf0 *NEWS.md
+00b3bde25ca0ee0f5424851f93cc40b0 *NEWS.md
 56661d85ce0318626c2668cf6ea73d74 *R/RcppExports.R
 59acb99a0ddfa2f25b5ca4297ec99dff *R/check_content.r
 383ffc72e59b7aa312638b8e5a2fd091 *R/header_tools.r
@@ -147,8 +147,8 @@ dcc8372244690fc936d2fc001352d478 *src/LASzip/laswriteitemcompressed_v4.cpp
 92671b462dae186dd7a8df87ee929671 *src/LASzip/laswritepoint.cpp
 b9b6c89cdfa3ec028e087234a7e01e8f *src/LASzip/laszip.cpp
 6420fa56af2f38c48b6670df81a94bb2 *src/LASzip/laszipper.cpp
-681550478c07af4d51e6944424c5f194 *src/Makevars
-681550478c07af4d51e6944424c5f194 *src/Makevars.win
+4878229efce9a986313e2b794197f8dc *src/Makevars
+4878229efce9a986313e2b794197f8dc *src/Makevars.win
 ddc5bb26b0805f22afda8b89be257024 *src/RcppExports.cpp
 3afcc5b7f67c794b1fb0ac86670550ab *src/fast.cpp
 0dce7af75c882ebc736c281803ad096f *src/readLAS.cpp
