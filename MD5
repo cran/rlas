@@ -1,7 +1,7 @@
 8f0e2cd40e05189ec81232da84bd6e1a *COPYING
-3c2ec2989e1acfc0e83d487419c5ecfe *DESCRIPTION
+962edd152abd109c4e1e6d9c774811c4 *DESCRIPTION
 fb7fb93abe790e30de1717a14062eba1 *NAMESPACE
-00b3bde25ca0ee0f5424851f93cc40b0 *NEWS.md
+eedcd58a95b0e7abc6c108c562f1e9b2 *NEWS.md
 56661d85ce0318626c2668cf6ea73d74 *R/RcppExports.R
 59acb99a0ddfa2f25b5ca4297ec99dff *R/check_content.r
 383ffc72e59b7aa312638b8e5a2fd091 *R/header_tools.r
@@ -11,7 +11,9 @@ fb7fb93abe790e30de1717a14062eba1 *NAMESPACE
 d8e213e3abd9f896bf369236598684a8 *R/writeLAX.r
 aaefbc2922e9b6e628fda61690fc203e *R/zzz.r
 5b0eeebe47620704fbf924f7d46d255f *README.md
+340fc4184b4ce759e009d5a599a51202 *inst/extdata/example.lax
 18b8f25b41ce57219c112ef9096cc16e *inst/extdata/example.laz
+f2d56088b57b42e969d3d3add220ec88 *inst/extdata/extra_byte.lax
 f44d5d1c4ac7d0dc45cf6c91c3a364c5 *inst/extdata/extra_byte.laz
 2c6ac038164e20f35b9f2456438da091 *inst/include/LICENSE.txt
 50014b45c8ff6bf65f7fb4d8d12f0981 *inst/include/README.txt
@@ -132,7 +134,7 @@ ab43b1e57dcb755ccf0e222dbd414781 *src/LASzip/arithmeticencoder.cpp
 2e90cd357e5ca1ac7a23fbf02d98f236 *src/LASzip/arithmeticmodel.cpp
 08cae26c279b3721d9da35acaecc7d44 *src/LASzip/integercompressor.cpp
 a8c8ea23dfac737f53bb2a4d7ca98c99 *src/LASzip/lasindex.cpp
-6016813c9bb7e0bcc013f89e4593a162 *src/LASzip/lasinterval.cpp
+874b5ffc36faabc2d1d6734a0c851998 *src/LASzip/lasinterval.cpp
 b6c1c48c44572776d27971c98e838830 *src/LASzip/lasquadtree.cpp
 e491e8bf941b32f9c57371b8b7494da4 *src/LASzip/lasreaditemcompressed_v1.cpp
 a0492317d14cf7f4db7d4f831b32de03 *src/LASzip/lasreaditemcompressed_v2.cpp
