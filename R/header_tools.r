@@ -25,7 +25,7 @@
 #'                      ScanDirectionFlag = c(1L, 1L, 1L),
 #'                      EdgeOfFlightline = c(1L, 0L, 0L),
 #'                      Classification = c(1L, 1L, 1L),
-#'                      ScanAngle = c(-21L, -21L, -21L),
+#'                      ScanAngleRank = c(-21L, -21L, -21L),
 #'                      UserData = c(32L, 32L, 32L),
 #'                      PointSourceID = c(17L, 17L, 17L),
 #'                      treeID = c(1L, 1L, 1L))
@@ -74,8 +74,8 @@ header_create = function(data)
   header[["Generating Software"]] = "rlas R package"
   header[["File Creation Day of Year"]] = as.numeric(strftime(Sys.time(), format = "%j"))
   header[["File Creation Year"]] = as.numeric(strftime(Sys.time(), format = "%Y"))
-  header[["Header Size"]] = 227
-  header[["Offset to point data"]] = 227
+  header[["Header Size"]] = 227L
+  header[["Offset to point data"]] = 227L
   header[["Number of point records"]] = npts
   header[["Min X"]] = minx
   header[["Min Y"]] = miny
@@ -83,12 +83,23 @@ header_create = function(data)
   header[["Max X"]] = maxx
   header[["Max Y"]] = maxy
   header[["Max Z"]] = maxz
-  header[["X offset"]] = header[["Min X"]]
-  header[["Y offset"]] = header[["Min Y"]]
-  header[["Z offset"]] = header[["Min Z"]]
+  header[["X offset"]] = floor(header[["Min X"]])
+  header[["Y offset"]] = floor(header[["Min Y"]])
+  header[["Z offset"]] = floor(header[["Min Z"]])
   header[["X scale factor"]] = 0.01
   header[["Y scale factor"]] = 0.01
   header[["Z scale factor"]] = 0.01
+
+
+  scalex <- guess_scale_factor(data$X)
+  scaley <- guess_scale_factor(data$Y)
+  scalez <- guess_scale_factor(data$Z)
+  if (scalex == scaley && scalex == scalez)
+  {
+    header[["X scale factor"]] <- scalex
+    header[["Y scale factor"]] <- scaley
+    header[["Z scale factor"]] <- scalez
+  }
 
   if ("ReturnNumber" %in% fields)
     header[["Number of points by return"]] <- tabulate(data$ReturnNumber, 5L)
@@ -97,6 +108,13 @@ header_create = function(data)
 
   header[["Point Data Format ID"]] <- guess_las_format(data)
   header[["Point Data Record Length"]] <- get_data_record_length(header[["Point Data Format ID"]])
+
+  if (header[["Point Data Format ID"]] >= 6L)
+  {
+    header[["Version Minor"]] = 4L
+    header[["Header Size"]] = 375L
+    header[["Offset to point data"]] = 375L
+  }
 
   header[["Variable Length Records"]] = list()
 
@@ -174,7 +192,7 @@ header_update = function(header, data)
 #'                   ScanDirectionFlag = c(1L, 1L, 1L),
 #'                   EdgeOfFlightline = c(1L, 0L, 0L),
 #'                   Classification = c(1L, 1L, 1L),
-#'                   ScanAngle = c(-21L, -21L, -21L),
+#'                   ScanAngleRank = c(-21L, -21L, -21L),
 #'                   UserData = c(32L, 32L, 32L),
 #'                   PointSourceID = c(17L, 17L, 17L),
 #'                   treeID = c(1L, 1L, 1L))
@@ -436,6 +454,15 @@ guess_las_format <- function(data)
     else
       return(0L)
   }
+}
+
+guess_scale_factor <- function(x)
+{
+  u <- fast_decimal_count(x)
+  u <- tabulate(u)
+  n <- which.max(u)
+  scale = 1/10^n
+  return(scale)
 }
 
 get_data_record_length <- function(format)

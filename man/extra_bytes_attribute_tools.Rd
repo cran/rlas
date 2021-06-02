@@ -53,7 +53,7 @@ data = data.frame(X = c(339002.889, 339002.983, 339002.918),
                   ScanDirectionFlag = c(1L, 1L, 1L),
                   EdgeOfFlightline = c(1L, 0L, 0L),
                   Classification = c(1L, 1L, 1L),
-                  ScanAngle = c(-21L, -21L, -21L),
+                  ScanAngleRank = c(-21L, -21L, -21L),
                   UserData = c(32L, 32L, 32L),
                   PointSourceID = c(17L, 17L, 17L),
                   treeID = c(1L, 1L, 1L))
@@ -67,6 +67,7 @@ lasheader[["Variable Length Records"]]
 \seealso{
 Other header_tools: 
 \code{\link{crs_tools}},
+\code{\link{fwf_interpreter}()},
 \code{\link{public_header_block_tools}}
 }
 \concept{header_tools}

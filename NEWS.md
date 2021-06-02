@@ -1,4 +1,13 @@
-### rlas v1.4.0 (Release date: )
+### rlas v1.5.0 (Release date: 2021-06-02)
+
+- New: Full waveform support (still experimental and incomplete). `read.las()` can read full waveform but `write.las()` can't write yet. The current read mode reads raw data without interpretation. A function `fwf_interpretation()` can parse the raw data into something more manageable by users. Everything is experimental and prone to modification. For example we might change our mind and read interpreted waveform instead of raw data in the future. The format of the output of `fwf_interpretation()` may also change if we find that this current design is not relevant. In short the FWF support is not mature yet and we plan to provide a mature and stable API in v1.6.0.
+- Misc: removed `LazyData` in `DESCRIPTION`
+- Misc: Update `Description` in `DESCRIPTION` to include format 1.4 in reading capabilities. 
+- Enhance: `header_create()` creates a v1.4 header if the point source format is detected to be 6 or more
+- Enhance: `header_create()` uses `floor(min(X|Y|Z))` instead of `min(X|Y|Z)` as offsets.
+- Enhance: `header_create()` infers the scale factor from the data instead of setting hard coded value 0.01
+
+### rlas v1.4.0 (Release date: 2021-03-23)
 
 - Fix: build failure with GCC 4.x
 - Fix: gcc-asan signed integer overflow.
@@ -83,18 +92,19 @@
 
 ### rlas v1.2.6 (Release date: 2018-08-20)
 
-* Change: `check_data` now check the adequation between the `ReturnNumber`and the `NumberOfReturns`
+* Change: `check_data` now checks the adequation between the `ReturnNumber` and the `NumberOfReturns`
+* Change: `readlasdata` and `readlasheader` were definitively removed.
 * Fix: `las` format 7 was supported at the C++ level when reading a file but an old test still throw an error at the R level stating that this format was not supported.
+* Fix: several compilation warnings on CRAN.
 * Fix: several compilation warnings on CRAN
 * Change: `readlasdata` and `readlasheader` were definitively removed.
-
 ### rlas v1.2.4 (Release date: 2018-06-10)
 
 * Reupload on CRAN after being removed.
 
 ### rlas v1.2.3 (Release date: 2018-05-17)
 
-* New: Read the classification flags in fields `Synthetic_flag`, `Keypoint_flag` and `Withheld_flag`.
+* New: read the classification flags in fields `Synthetic_flag`, `Keypoint_flag` and `Withheld_flag`.
 * Fix: point in polygon includes the points that define the polygon.
 * Fix: [[#21](https://github.com/Jean-Romain/rlas/issues/21)] writing a vector that contains only NAs in extra bytes
 * Fix: additional warnings on CRAN with gcc 8+
@@ -112,7 +122,7 @@
 * New: function `read.lasheader` that replaces `readlasheader`, which is now deprecated. This change was made only for naming consistency.
 * New: functions `header_*` that allows the user to make valid headers and thus properly write the las files.
 * New: functions `check_*` that check data integrity.
-* Fix [[#9](https://github.com/Jean-Romain/rlas/issues/9)] with valgrind: uninitialized value(s)
+* Fix: [[#9](https://github.com/Jean-Romain/rlas/issues/9)] with valgrind: uninitialized value(s)
 
 ### rlas v1.1.9 (Release date: 2018-01-17)
 
@@ -128,16 +138,15 @@
 * New: function `writelax` for writing LAX files.
 * New: function `readlasdata` enable for reading several files.
 * Fix: the las files were read twice every time. `lasdatareader` is twice as fast since it reads files only once
-* Fix: `readlasdata` enables loading (or not) of the gpstime field.
 
 ### rlas v1.1.4 (Release date: 2017-07-26)
 
-* Fix: solved the compilation issue on CRAN with clang++ and gnu++11
+* Fix: compilation issue on CRAN with clang++ and gnu++11
 
 ### rlas v1.1.3 (Release date: 2017-06-09)
 
-* Fix: [[#4](https://github.com/Jean-Romain/rlas/issues/4)] bug of computer precision when writing files 
-* Fix: [[#61](https://github.com/Jean-Romain/lidR/issues/61)] wrong header size for files version 1.3
+* Fix  [[#4](https://github.com/Jean-Romain/rlas/issues/4)] bug of computer precision when writing files 
+* Fix  [[#61](https://github.com/Jean-Romain/lidR/issues/61)] wrong header size for files version 1.3
 * Change: update LASlib and LASzip
 * Change: better integration of LASlib and LASzip in R
 
@@ -154,8 +163,8 @@
 
 * New: `readlasdata()` gains a parameter `filter` enabling use of memory-optimized streaming filters.
 * New: `readlasdata()` supports .lax files for faster filter (thanks to Florian de Boissieu [#2](https://github.com/Jean-Romain/rlas/pull/2))
-* Change: all the default options for `readlasdata()` are now `TRUE`
-* Fix: `readlasheader()` is now able to read the `Variable length record`
+* Change: All the default options for `readlasdata()` are now `TRUE`
+* Fix: `readlasheader()` is now able to read the `Variable Length Records`
 
 ### rlas v1.0.3 (Release date: 2016-12-24)
 

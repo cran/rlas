@@ -2,6 +2,7 @@
 
 export(check_las_compliance)
 export(check_las_validity)
+export(fwf_interpreter)
 export(header_add_extrabytes)
 export(header_add_extrabytes_manual)
 export(header_create)
