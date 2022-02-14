@@ -1,7 +1,7 @@
 8f0e2cd40e05189ec81232da84bd6e1a *COPYING
-6118fa15f959c2aaf14d378bbd8a027d *DESCRIPTION
+205db677155073de26aec7025727ced3 *DESCRIPTION
 92c0cc0ad8e164ea1ea7944b33ea895b *NAMESPACE
-c92eb6199429976ad202648aa75066a7 *NEWS.md
+35470b7b067127d14e9f45a60275faca *NEWS.md
 cacf061474c97239db1a01e74864aa15 *R/RcppExports.R
 59acb99a0ddfa2f25b5ca4297ec99dff *R/check_content.r
 b508a32db502746b608e14ad0e955658 *R/fwf_interpreter.r
@@ -168,7 +168,7 @@ d62de1b3806e374fa0aef41d43747062 *src/fast.cpp
 981ce284c6759e79b540a74a49b76691 *src/gcc_4_9_patch/boost_compare_patched.hpp
 464df122ad367ed4f60ece71398fcf22 *src/gcc_4_9_patch/std_is_trivially_substitutes.hpp
 0d02749beac3099ce5cd7a6b2006e558 *src/readLAS.cpp
-a141329a933cad2fef77c80d67ec76bf *src/readheader.cpp
+6d9659798ffdb489facbb7ac32f1ce35 *src/readheader.cpp
 88a64d196eb4e833171ca649ad44d2b5 *src/rlasextrabytesattributes.cpp
 f1353ad2bb3a40177b7810c458774e56 *src/rlasextrabytesattributes.h
 e1c8c48e88809ac8f1804182a9c5b392 *src/rlasstreamer.cpp
