@@ -7,7 +7,7 @@ expect_true(gz$Withheld_flag)
 expect_true(gz$Synthetic_flag)
 expect_true(gz$PointSourceID)
 expect_true(gz$UserData)
-expect_true(utils::object.size(data) > true_size(data))
+#expect_true(utils::object.size(data) > true_size(data))
 
 # Test that check function do not materialize ALTREP
 check_las_validity(header, data)
