@@ -1,3 +1,8 @@
+### rlas v1.6.3
+
+- Fix warnings with gcc-12
+- C internals have been standardized to use `[u]int64_t` instead of `[unsigned] long long` and `PRI[u|d]64` to print `[u]int64_t`. This solves new warnings from `gcc-8` on Windows with `%lld`.
+
 ### rlas v1.6.2
 
 - Fix compilation with g++-12 thanks to Dirk Eddelbuettel [#57](https://github.com/r-lidar/rlas/pull/57)
