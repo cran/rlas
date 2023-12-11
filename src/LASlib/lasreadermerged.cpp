@@ -2,18 +2,18 @@
 ===============================================================================
 
   FILE:  lasreadermerged.cpp
-  
+
   CONTENTS:
-  
+
     see corresponding header file
-  
+
   PROGRAMMERS:
-  
-    martin.isenburg@rapidlasso.com  -  http://rapidlasso.com
-  
+
+    info@rapidlasso.de  -  https://rapidlasso.de
+
   COPYRIGHT:
-  
-    (c) 2007-2019, martin isenburg, rapidlasso - fast tools to catch reality
+
+    (c) 2007-2019, rapidlasso GmbH - fast tools to catch reality
 
     This is free software; you can redistribute and/or modify it under the
     terms of the GNU Lesser General Licence as published by the Free Software
@@ -21,16 +21,17 @@
 
     This software is distributed WITHOUT ANY WARRANTY and without even the
     implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  
+
   CHANGE HISTORY:
-  
+
     see corresponding header file
-  
+
 ===============================================================================
 */
 #include "lasreadermerged.hpp"
 
 #include "lasindex.hpp"
+#include "lascopc.hpp"
 #include "lasfilter.hpp"
 #include "lastransform.hpp"
 
@@ -633,6 +634,12 @@ void LASreaderMerged::set_keep_lastiling(BOOL keep_lastiling)
   this->keep_lastiling = keep_lastiling;
 }
 
+void LASreaderMerged::set_copc_stream_order(U8 order)
+{
+  if (order < 0 || order > 2) order = 0;
+  copc_stream_order = order;
+}
+
 BOOL LASreaderMerged::open()
 {
   if (file_name_number == 0)
@@ -815,7 +822,7 @@ BOOL LASreaderMerged::open()
         // have there not been any points before
         if (npoints == lasreader->npoints)
         {
-          // use the counters 
+          // use the counters
           header.number_of_point_records = lasreader->header.number_of_point_records;
           for (j = 0; j < 5; j++)
           {
@@ -851,7 +858,7 @@ BOOL LASreaderMerged::open()
         }
         else
         {
-          // increment point counters 
+          // increment point counters
           header.number_of_point_records += lasreader->header.number_of_point_records;
           for (j = 0; j < 5; j++)
           {
@@ -1036,7 +1043,7 @@ BOOL LASreaderMerged::open()
       reoffset = TRUE;
     }
   }
-    
+
   // check y
 
   if ((((header.max_y - header.y_offset) / header.y_scale_factor) > I32_MAX) || (((header.min_y - header.y_offset) / header.y_scale_factor) < I32_MIN))
@@ -1062,7 +1069,7 @@ BOOL LASreaderMerged::open()
       reoffset = TRUE;
     }
   }
-    
+
   // check z
 
   if ((((header.max_z - header.z_offset) / header.z_scale_factor) > I32_MAX) || (((header.min_z - header.z_offset) / header.z_scale_factor) < I32_MIN))
@@ -1269,6 +1276,17 @@ BOOL LASreaderMerged::inside_rectangle(const F64 min_x, const F64 min_y, const F
   return TRUE;
 }
 
+BOOL LASreaderMerged::inside_copc_depth(const U8 mode, const I32 depth, const F32 resolution)
+{
+  if (!header.vlr_copc_info)
+    return FALSE;
+
+  inside_depth = mode;
+  copc_depth = depth;
+  copc_resolution = resolution;
+  return TRUE;
+}
+
 I32 LASreaderMerged::get_format() const
 {
   return lasreader->get_format();
@@ -1330,7 +1348,7 @@ BOOL LASreaderMerged::read_point_default()
 
 void LASreaderMerged::close(BOOL close_stream)
 {
-  if (lasreader) 
+  if (lasreader)
   {
     lasreader->close(close_stream);
   }
@@ -1347,7 +1365,7 @@ BOOL LASreaderMerged::reopen()
 
 void LASreaderMerged::clean()
 {
-  if (lasreader) 
+  if (lasreader)
   {
     delete lasreader;
     lasreader = 0;
@@ -1497,11 +1515,30 @@ BOOL LASreaderMerged::open_next_file()
         REprintf( "ERROR: could not open lasreaderlas for file '%s'\n", file_names[file_name_current]);
         return FALSE;
       }
-      LASindex* index = new LASindex;
+      LASindex *index = new LASindex;
       if (index->read(file_names[file_name_current]))
         lasreaderlas->set_index(index);
       else
+      {
         delete index;
+        index = 0;
+      }
+
+      // Creation of the COPC index
+      if (lasreaderlas->header.vlr_copc_entries)
+      {
+        if (index)
+        {
+          REprintf( "WARNING: both LAX file and COPC spatial indexing registered. COPC has the precedence.\n");
+          lasreaderlas->set_index(0); // delete the index internally
+        }
+
+        COPCindex *copc_index = new COPCindex(lasreaderlas->header);
+        if (copc_stream_order == 0) 	 copc_index->set_stream_ordered_by_chunk();
+        else if (copc_stream_order == 1) copc_index->set_stream_ordered_spatially();
+        else if (copc_stream_order == 2) copc_index->set_stream_ordered_by_depth();
+        lasreaderlas->set_copcindex(copc_index);
+      }
     }
     else if (lasreaderbin)
     {
@@ -1616,6 +1653,7 @@ BOOL LASreaderMerged::open_next_file()
       else if (inside == 1) lasreader->inside_tile(t_ll_x, t_ll_y, t_size);
       else lasreader->inside_circle(c_center_x, c_center_y, c_radius);
     }
+	if (inside_depth) lasreader->inside_copc_depth(inside_depth, copc_depth, copc_resolution);
     return TRUE;
   }
   return FALSE;
