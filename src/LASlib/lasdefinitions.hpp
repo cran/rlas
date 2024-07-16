@@ -323,6 +323,7 @@ public:
   void clean_las_header()
   {
     memset((void*)this, 0, sizeof(LASheader));
+    attributes_linked = TRUE;
     file_signature[0] = 'L'; file_signature[1] = 'A'; file_signature[2] = 'S'; file_signature[3] = 'F';
     version_major = 1;
     version_minor = 2;
@@ -762,13 +763,8 @@ public:
         number_of_extended_variable_length_records--;
         if (number_of_extended_variable_length_records)
         {
-          // Fix for #67. I do not understand why realloc corrupts the memory.
-          LASevlr* tmp = (LASevlr*)calloc(number_of_extended_variable_length_records, sizeof(LASevlr));
-          for (U32 j = 0, k = 0; j < number_of_extended_variable_length_records+1; ++j) { if (j != i) { tmp[k++] = evlrs[j]; }}
-          free(evlrs);
-          evlrs = tmp;
-          //evlrs[i] = evlrs[number_of_extended_variable_length_records];
-          //evlrs = (LASevlr*)realloc(evlrs, sizeof(LASvlr)*number_of_extended_variable_length_records);
+          evlrs[i] = evlrs[number_of_extended_variable_length_records];
+          evlrs = (LASevlr*)realloc(evlrs, sizeof(LASevlr)*number_of_extended_variable_length_records);
         }
         else
         {
