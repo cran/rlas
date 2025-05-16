@@ -1,6 +1,18 @@
+### rlas v1.8.2
+
+- New: `read.las` has a progress bar
+- New: `read.las` checks user interruption
+
+### rlas v1.8.1
+
+- Fix: can read file with multiple extra bytes definitions
+- Fix CRAN: Found non-API call to R: ‘DATAPTR’ for altrep
+- Removed a `boost` header still included in the code.
+- Function `stream.las` exposed to users
+
 ### rlas v1.8.0
 
-- Internal changes to appease CRAN: remove dependency to boost
+- Internal changes to appease CRAN: remove dependency to `boost`
 
 ### rlas v1.7.0
 

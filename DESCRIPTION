@@ -2,7 +2,7 @@ Package: rlas
 Type: Package
 Title: Read and Write 'las' and 'laz' Binary File Formats Used for
         Remote Sensing Data
-Version: 1.8.0
+Version: 1.8.2
 Authors@R: c(
     person("Jean-Romain", "Roussel", email = "jean-romain.roussel.1@ulaval.ca", role = c("aut", "cre", "cph")),
     person("Florian", "De Boissieu", email = "", role = c("aut", "ctb"), comment = "Enable the support of .lax file and extra byte attributes"),
@@ -16,12 +16,12 @@ BugReports: https://github.com/r-lidar/rlas/issues
 License: GPL-3
 Depends: R (>= 3.6.0)
 Imports: Rcpp, data.table, utils
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 LinkingTo: Rcpp
 Suggests: tinytest
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2024-07-16 15:27:38 UTC; jr
+Packaged: 2025-05-16 19:31:46 UTC; jr
 Author: Jean-Romain Roussel [aut, cre, cph],
   Florian De Boissieu [aut, ctb] (Enable the support of .lax file and
     extra byte attributes),
@@ -32,4 +32,4 @@ Author: Jean-Romain Roussel [aut, cre, cph],
   Tiago de Conto [ctb] (Implemented the -thin_with_voxel filter method)
 Maintainer: Jean-Romain Roussel <jean-romain.roussel.1@ulaval.ca>
 Repository: CRAN
-Date/Publication: 2024-07-16 22:20:02 UTC
+Date/Publication: 2025-05-16 23:30:02 UTC

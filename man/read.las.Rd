@@ -2,9 +2,18 @@
 % Please edit documentation in R/readLAS.r
 \name{read.las}
 \alias{read.las}
+\alias{read_and_write.las}
 \title{Read data from a .las or .laz file}
 \usage{
 read.las(files, select = "*", filter = "", transform = "")
+
+read_and_write.las(
+  ifiles,
+  ofile = "",
+  select = "*",
+  filter = "",
+  polygons = list()
+)
 }
 \arguments{
 \item{files}{array of characters}
@@ -14,6 +23,10 @@ read.las(files, select = "*", filter = "", transform = "")
 \item{filter}{character. streaming filters - filter data while reading the file (see details)}
 
 \item{transform}{character. streaming transformation - transform data while reading the file (see details)}
+
+\item{ifiles, ofile}{characters. Streaming operations.}
+
+\item{polygons}{list. Internal use only.}
 }
 \value{
 A \code{data.table}

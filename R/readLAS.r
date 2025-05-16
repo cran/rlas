@@ -126,7 +126,11 @@ read.lasheader = function(file)
   return(data)
 }
 
-stream.las = function(ifiles, ofile = "", select = "*", filter = "", polygons = list())
+#' @rdname read.las
+#' @param ifiles,ofile characters. Streaming operations.
+#' @param polygons list. Internal use only.
+#' @export
+read_and_write.las = function(ifiles, ofile = "", select = "*", filter = "", polygons = list())
 {
   stream    <- ofile != ""
   ifiles    <- enc2native(normalizePath(ifiles))
@@ -156,4 +160,5 @@ stream.las = function(ifiles, ofile = "", select = "*", filter = "", polygons = 
   return(data)
 }
 
+stream.las = read_and_write.las
 
