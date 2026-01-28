@@ -2,26 +2,26 @@ Package: rlas
 Type: Package
 Title: Read and Write 'las' and 'laz' Binary File Formats Used for
         Remote Sensing Data
-Version: 1.8.2
+Version: 1.8.3
 Authors@R: c(
-    person("Jean-Romain", "Roussel", email = "jean-romain.roussel.1@ulaval.ca", role = c("aut", "cre", "cph")),
+    person("Jean-Romain", "Roussel", email = "info@r-lidar.com", role = c("aut", "cre", "cph")),
     person("Florian", "De Boissieu", email = "", role = c("aut", "ctb"), comment = "Enable the support of .lax file and extra byte attributes"),
     person("Martin", "Isenburg", email = "", role = "cph", comment = "Is the author of the LASlib and LASzip libraries"),
     person("David", "Auty", email = "", role = c("ctb"), comment = "Reviewed the documentation"),
     person("Pierrick", "Marie", email = "", role = ("ctb"), comment = "Helped to compile LASlib code in R"),
     person("Tiago", "de Conto", email = "", role = ("ctb"), comment = "Implemented the -thin_with_voxel filter method"))
-Description: Read and write 'las' and 'laz' binary file formats. The LAS file format is a public file format for the interchange of 3-dimensional point cloud data between data users. The LAS specifications are approved by the American Society for Photogrammetry and Remote Sensing <https://www.asprs.org/divisions-committees/lidar-division/laser-las-file-format-exchange-activities>. The LAZ file format is an open and lossless compression scheme for binary LAS format versions 1.0 to 1.4 <https://laszip.org/>.
+Description: Read and write 'las' and 'laz' binary file formats. The LAS file format is a public file format for the interchange of 3-dimensional point cloud data between data users. The LAS specifications are approved by the American Society for Photogrammetry and Remote Sensing <https://community.asprs.org/leadership-restricted/leadership-content/public-documents/standards>. The LAZ file format is an open and lossless compression scheme for binary LAS format versions 1.0 to 1.4 <https://laszip.org/>.
 URL: https://github.com/r-lidar/rlas
 BugReports: https://github.com/r-lidar/rlas/issues
 License: GPL-3
 Depends: R (>= 3.6.0)
 Imports: Rcpp, data.table, utils
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 LinkingTo: Rcpp
 Suggests: tinytest
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2025-05-16 19:31:46 UTC; jr
+Packaged: 2026-01-27 19:14:19 UTC; jr
 Author: Jean-Romain Roussel [aut, cre, cph],
   Florian De Boissieu [aut, ctb] (Enable the support of .lax file and
     extra byte attributes),
@@ -30,6 +30,6 @@ Author: Jean-Romain Roussel [aut, cre, cph],
   David Auty [ctb] (Reviewed the documentation),
   Pierrick Marie [ctb] (Helped to compile LASlib code in R),
   Tiago de Conto [ctb] (Implemented the -thin_with_voxel filter method)
-Maintainer: Jean-Romain Roussel <jean-romain.roussel.1@ulaval.ca>
+Maintainer: Jean-Romain Roussel <info@r-lidar.com>
 Repository: CRAN
-Date/Publication: 2025-05-16 23:30:02 UTC
+Date/Publication: 2026-01-28 06:10:02 UTC

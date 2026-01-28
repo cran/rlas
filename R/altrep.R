@@ -57,10 +57,16 @@ is_compact <- function(x)
 {
   altrep <- R_altrep_full_class(x)
   if (is.null(altrep)) return(FALSE)
-  if (altrep[[2]] == "rlas") {
+
+  if (getRversion() < "4.6.0")
+    altrep = altrep[[2]]
+
+  if (altrep == "rlas")
+  {
     if (R_is_materialized(x)) return(FALSE)
     return(TRUE)
   }
+
   return(FALSE)
 }
 

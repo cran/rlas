@@ -500,9 +500,17 @@ bool R_is_materialized(SEXP x)
   return DATAPTR_OR_NULL(x) != nullptr;
 }
 
+#if R_VERSION >= R_Version(4, 6, 0)
+#include <string>
+#include <vector>
+#endif
 
 // [[Rcpp::export]]
 SEXP R_altrep_full_class(SEXP x) {
-  if (ALTREP(x)) return ATTRIB(ALTREP_CLASS(x));
-  return R_NilValue;
+  if (!ALTREP(x)) return R_NilValue;
+  #if R_VERSION >= R_Version(4, 6, 0)
+    return R_altrep_class_package(x);
+  #else
+    return ATTRIB(ALTREP_CLASS(x));
+  #endif
 }
