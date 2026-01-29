@@ -1,7 +1,7 @@
 8f0e2cd40e05189ec81232da84bd6e1a *COPYING
-032bd65334df36a1fba0749c1af63ebe *DESCRIPTION
+917c225a266259414172cb51e3765b82 *DESCRIPTION
 bfc9da704c7763b9275d6f4100bda1a1 *NAMESPACE
-c148259b3a224228585c900002ae92eb *NEWS.md
+03e7f428fa6d761a2ce810b29b5c036d *NEWS.md
 6a18cdc1df6151c321b6e9c16192b42c *R/RcppExports.R
 b30a91dd2758c33f8bf11f36f6d61833 *R/altrep.R
 59acb99a0ddfa2f25b5ca4297ec99dff *R/check_content.r
@@ -57,7 +57,7 @@ e3b9eb14816a332fada8d31cfa5001b0 *src/LASlib/lasdefinitions.hpp
 1671788cd5a06e1a52d0170778abdb50 *src/LASlib/laskdtree.cpp
 bd1a9ec8c343235096c1c7a63be1985f *src/LASlib/laskdtree.hpp
 985fd8ff9a6f6051e63dff77f72f4751 *src/LASlib/laslib-config.cmake
-0fd64adc3d7f4b2f9360b620291bcee0 *src/LASlib/lasreader.cpp
+b6858a130cc2cce193d1f01656c779ff *src/LASlib/lasreader.cpp
 15ec7d246d49f9440fa3625608f1e471 *src/LASlib/lasreader.hpp
 62fd48e93c43cfcb9ae4f68fddb8f5d7 *src/LASlib/lasreader_asc.cpp
 7100ab0a6557e78d96c5da975a061508 *src/LASlib/lasreader_asc.hpp
@@ -65,9 +65,9 @@ bd1a9ec8c343235096c1c7a63be1985f *src/LASlib/laskdtree.hpp
 d72b64f2b4f8d55a6a53797e61deb77d *src/LASlib/lasreader_bil.hpp
 5e56afa0139be25d059b311f8e3012ac *src/LASlib/lasreader_bin.cpp
 7c1a685abe036451a332676518e55799 *src/LASlib/lasreader_bin.hpp
-e71748bbe8659f350a7b36be14efe0ab *src/LASlib/lasreader_dtm.cpp
+de5ea13a4624f53d3feebaf8504857e0 *src/LASlib/lasreader_dtm.cpp
 71e4236c04973c1a261f0562f888c01e *src/LASlib/lasreader_dtm.hpp
-0e8adcb75cd7f671f696a286d49b8e77 *src/LASlib/lasreader_las.cpp
+6a748282a6c5b9806ac5630f9229ab00 *src/LASlib/lasreader_las.cpp
 6a4fdafff4afeb9b7efe9ae79409906c *src/LASlib/lasreader_las.hpp
 e91e9df10d89ad0b74d1fa11da5c629a *src/LASlib/lasreader_ply.cpp
 8a43bf16af9a2f2c84270bf10007d798 *src/LASlib/lasreader_ply.hpp
@@ -85,7 +85,7 @@ e8abd12003fb36fb73a169dc7fc1d949 *src/LASlib/lasreaderpipeon.cpp
 1541f2a1afd9b2b9860a08fed6db8e6e *src/LASlib/lasreaderpipeon.hpp
 088a457d6fcaa58a453b72efd903e2e7 *src/LASlib/lasreaderstored.cpp
 43e90bd092af2a14d4c24f8f25680e16 *src/LASlib/lasreaderstored.hpp
-807fd7cf13aad51ce724acf885312854 *src/LASlib/lastransform.cpp
+0984cbb336b5facb67aa7e2780426fc9 *src/LASlib/lastransform.cpp
 710746f2f70902eed8066c796207d19a *src/LASlib/lastransform.hpp
 94f4e3bb9d57768a9af9dd7e2ac01738 *src/LASlib/lasutility.cpp
 d3d57068d73eee140e9b8bcfe3497636 *src/LASlib/lasutility.hpp
@@ -176,7 +176,7 @@ b38b27ae9ecea756f3eaf5bc933dc286 *src/LASzip/mydefs.hpp
 c545fca10b4e147a45d9a0d4a36d69d9 *src/Makevars
 c545fca10b4e147a45d9a0d4a36d69d9 *src/Makevars.win
 3ee7c1ace6271000f3c0657fb825086e *src/RcppExports.cpp
-974c4af3c44d1d89ef1dc60495288da8 *src/altrep_compact_replication.cpp
+0da48e457387bc3a7c863a06c9980cc9 *src/altrep_compact_replication.cpp
 794ff015b675d531bbeb7f83b5a23e2d *src/altrepisode.h
 d62de1b3806e374fa0aef41d43747062 *src/fast.cpp
 e3ac021c811cc246a5d237fff0d5afa3 *src/readLAS.cpp
