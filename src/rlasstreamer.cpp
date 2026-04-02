@@ -419,7 +419,7 @@ void RLASstreamer::write_waveform()
     }
     else if (laswaveform13reader->nbits == 32)
     {
-      Rf_errorcall(R_NilValue, "32 bits full waveform not supported yet.");
+      throw std::runtime_error("32 bits full waveform not supported yet.");
     }
   }
   else
@@ -952,7 +952,7 @@ int RLASstreamer::get_format(U8 point_type)
     case 8: return 8;
     case 9: return 9;
     case 10: return 10;
-    default: Rf_errorcall(R_NilValue, "LAS format not valid.");
+    default: throw std::runtime_error("LAS format not valid.");
   }
 
   return 0;

@@ -1,7 +1,7 @@
 8f0e2cd40e05189ec81232da84bd6e1a *COPYING
-917c225a266259414172cb51e3765b82 *DESCRIPTION
+5499884a8588cb9f7d827151774813b1 *DESCRIPTION
 bfc9da704c7763b9275d6f4100bda1a1 *NAMESPACE
-03e7f428fa6d761a2ce810b29b5c036d *NEWS.md
+fa36048cc31d73859c3f8ce099d90bd1 *NEWS.md
 6a18cdc1df6151c321b6e9c16192b42c *R/RcppExports.R
 b30a91dd2758c33f8bf11f36f6d61833 *R/altrep.R
 59acb99a0ddfa2f25b5ca4297ec99dff *R/check_content.r
@@ -176,14 +176,14 @@ b38b27ae9ecea756f3eaf5bc933dc286 *src/LASzip/mydefs.hpp
 c545fca10b4e147a45d9a0d4a36d69d9 *src/Makevars
 c545fca10b4e147a45d9a0d4a36d69d9 *src/Makevars.win
 3ee7c1ace6271000f3c0657fb825086e *src/RcppExports.cpp
-0da48e457387bc3a7c863a06c9980cc9 *src/altrep_compact_replication.cpp
+ba8b0a0cd628de069c83221495802bb1 *src/altrep_compact_replication.cpp
 794ff015b675d531bbeb7f83b5a23e2d *src/altrepisode.h
 d62de1b3806e374fa0aef41d43747062 *src/fast.cpp
 e3ac021c811cc246a5d237fff0d5afa3 *src/readLAS.cpp
 13815165687ac32fdb8f87de36e2a1f6 *src/readheader.cpp
 88a64d196eb4e833171ca649ad44d2b5 *src/rlasextrabytesattributes.cpp
 f1353ad2bb3a40177b7810c458774e56 *src/rlasextrabytesattributes.h
-0529bb726b10280ed18e918fa4f7418d *src/rlasstreamer.cpp
+520929c6acb30559be3585f913ce4648 *src/rlasstreamer.cpp
 3b44e6952f8d19cf78b16495823f1249 *src/rlasstreamer.h
 c49bb4ef5668f35e3b59bc88d70da611 *src/writeLAS.cpp
 a330769fd74c8e028e1421f966008683 *src/writeLAX.cpp

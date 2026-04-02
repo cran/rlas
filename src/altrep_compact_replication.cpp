@@ -1,5 +1,6 @@
 #include "altrepisode.h"
 #include <type_traits>
+#include <stdexcept>
 
 template<typename T>
 struct repetition {
@@ -161,7 +162,7 @@ struct compact_repetition
     }
     default:
     {
-      Rf_error("Not supported input SEXP in compact repetition");
+      throw std::runtime_error("Not supported input SEXP in compact repetition");
       break;
     }
     }
@@ -482,7 +483,7 @@ SEXP R_compact_rep(int n, SEXP v)
     }
     default:
     {
-      Rf_error("Not supported input SEXP in compact repetition");
+      throw std::runtime_error("Not supported input SEXP in compact repetition");
       break;
     }
   }

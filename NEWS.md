@@ -1,3 +1,7 @@
+### rlas v1.8.5
+
+- Fix CRAN stuff
+
 ### rlas v1.8.4
 
 - Fix CRAN stuff
