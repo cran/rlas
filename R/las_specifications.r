@@ -43,40 +43,48 @@ error_handling_engine = function(errors, behavior)
 is_no_na_integer_on_n_bits <- function(x, nbits, name, signed = TRUE, behavior = "bool")
 {
   na.rm = FALSE
-  errors = character(0)
+  errors <- character(0)
 
   if (is.null(x))
     return(error_handling_engine(errors, behavior))
 
-  if (anyNA(x))
-  {
-    errors <- append(errors, paste("Invalid data:",  name, "contains some NAs"))
+  if (anyNA(x)) {
+    errors <- append(errors, paste("Invalid data:", name, "contains NAs"))
     na.rm <- TRUE
   }
 
-  if (!is.integer(x))
-    errors = append(errors, paste("Invalid data:", name, "is not an integer"))
+  if (!is.integer(x)) {
+    errors <- append(errors, paste("Invalid data:", name, "is not an integer storage type (found type:", typeof(x), ")"))
+  }
+
+  min_val <- min(x, na.rm = na.rm)
+  max_val <- max(x, na.rm = na.rm)
 
   if (!signed)
   {
-    if (min(x, na.rm = na.rm) < 0)
-      errors = append(errors, paste("Invalid data:", name, "is not an unsigned integer"))
-  }
-  else
-  {
-    if (min(x, na.rm = na.rm) < -2L^(nbits - 1))
-      errors = append(errors, paste("Invalid data:", name, "is not an integer on", nbits, "bits"))
-  }
+    if (min_val < 0) {
+      errors <- append(errors, paste("Invalid data:", name, "is not an unsigned integer. Triggered by value:", min_val))
+    }
 
-  if (!signed)
-  {
-    if (max(x, na.rm = na.rm) > 2L^nbits - 1)
-      errors = append(errors, paste("Invalid data:", name, "is not an unsigned integer on", nbits, "bits"))
+    upper_bound <- 2^nbits - 1
+    if (max_val > upper_bound)
+    {
+      errors <- append(errors, paste("Invalid data:", name, "is not an unsigned integer on", nbits, "bits. Triggered by value:", max_val))
+    }
   }
   else
   {
-    if (max(x, na.rm = na.rm) > 2L^(nbits - 1) - 1)
-      errors = append(errors, paste("Invalid data:", name, "is not an unsigned integer on", nbits, "bits"))
+    lower_bound <- -2^(nbits - 1)
+    if (min_val < lower_bound)
+    {
+      errors <- append(errors, paste("Invalid data:", name, "is not a signed integer on", nbits, "bits. Triggered by value:", min_val))
+    }
+
+    upper_bound <- 2^(nbits - 1) - 1
+    if (max_val > upper_bound)
+    {
+      errors <- append(errors, paste("Invalid data:", name, "is not a signed integer on", nbits, "bits. Triggered by value:", max_val))
+    }
   }
 
   return(error_handling_engine(errors, behavior))

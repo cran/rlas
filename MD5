@@ -1,5 +1,5 @@
 8f0e2cd40e05189ec81232da84bd6e1a *COPYING
-5499884a8588cb9f7d827151774813b1 *DESCRIPTION
+4186334790855d0ab16a9539e385de32 *DESCRIPTION
 bfc9da704c7763b9275d6f4100bda1a1 *NAMESPACE
 fa36048cc31d73859c3f8ce099d90bd1 *NEWS.md
 6a18cdc1df6151c321b6e9c16192b42c *R/RcppExports.R
@@ -8,7 +8,7 @@ b30a91dd2758c33f8bf11f36f6d61833 *R/altrep.R
 b508a32db502746b608e14ad0e955658 *R/fwf_interpreter.r
 b9d3c5dc77a344ba8f1501b6fd0d5558 *R/header_tools.r
 e6c3a190adb502865f42325543030571 *R/help.R
-2d20f4b34d33d0c1927884f4955bab69 *R/las_specifications.r
+91a7d8946b6640053e37e329fd127fdf *R/las_specifications.r
 21855c4c6812ce20746bfef1db08f093 *R/readLAS.r
 e2a515609203b0a61ca479a6009f27b0 *R/writeLAS.r
 d8e213e3abd9f896bf369236598684a8 *R/writeLAX.r
@@ -63,7 +63,7 @@ b6858a130cc2cce193d1f01656c779ff *src/LASlib/lasreader.cpp
 7100ab0a6557e78d96c5da975a061508 *src/LASlib/lasreader_asc.hpp
 6f7a16454e884ba5268c59f42ad84916 *src/LASlib/lasreader_bil.cpp
 d72b64f2b4f8d55a6a53797e61deb77d *src/LASlib/lasreader_bil.hpp
-5e56afa0139be25d059b311f8e3012ac *src/LASlib/lasreader_bin.cpp
+eecee17705dec4a4338e192281973393 *src/LASlib/lasreader_bin.cpp
 7c1a685abe036451a332676518e55799 *src/LASlib/lasreader_bin.hpp
 de5ea13a4624f53d3feebaf8504857e0 *src/LASlib/lasreader_dtm.cpp
 71e4236c04973c1a261f0562f888c01e *src/LASlib/lasreader_dtm.hpp
@@ -94,7 +94,7 @@ d3d57068d73eee140e9b8bcfe3497636 *src/LASlib/lasutility.hpp
 956e942acfbe46e854dc0f03fbeb5c83 *src/LASlib/lasvlrpayload.hpp
 437c87d4ec47e02856cbf64bc6034e24 *src/LASlib/laswaveform13reader.cpp
 625d6d47cefd89edd7ed06652e47c842 *src/LASlib/laswaveform13reader.hpp
-9960030fd07771d8ab1ab6141c66fd8a *src/LASlib/laswaveform13writer.cpp
+11a6b06df8566e8394cf94c91e594159 *src/LASlib/laswaveform13writer.cpp
 3454f6e39b0ebeca5834f372194a13a7 *src/LASlib/laswaveform13writer.hpp
 be6df860fcb8ce9d532bc6a3e8e43c99 *src/LASlib/laswriter.cpp
 c57f795ad14fe0b0c37f3c28d6199c48 *src/LASlib/laswriter.hpp
@@ -172,7 +172,7 @@ c7f65344f3ef2c77cd65464dad0b9cee *src/LASzip/laszip_common_v2.hpp
 a5b64d73f71644fceead8fc687fa60db *src/LASzip/laszip_common_v3.hpp
 705c337705c420d1bc4f361d13794512 *src/LASzip/laszip_decompress_selective_v3.hpp
 f0933a6e80832d5f72ca75f38b0dff12 *src/LASzip/mydefs.cpp
-b38b27ae9ecea756f3eaf5bc933dc286 *src/LASzip/mydefs.hpp
+2fb1a2e6e4812510bf8c7e1aaf0a4038 *src/LASzip/mydefs.hpp
 c545fca10b4e147a45d9a0d4a36d69d9 *src/Makevars
 c545fca10b4e147a45d9a0d4a36d69d9 *src/Makevars.win
 3ee7c1ace6271000f3c0657fb825086e *src/RcppExports.cpp
