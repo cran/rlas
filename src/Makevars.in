@@ -1,5 +1,5 @@
-PKG_CPPFLAGS = -DNDEBUG -DUNORDERED -DHAVE_UNORDERED_MAP -I./ -I./LASlib/ -I./LASzip/
-
+PKG_CPPFLAGS= @PKG_CPPFLAGS@ -DNDEBUG -DUSING_R -DUSING_GDAL -I./ -I./LASlib/ -I./LASzip/
+PKG_LIBS=@PKG_LIBS@
 SOURCES = LASlib/lasreader_txt.cpp \
 					LASlib/fopen_compressed.cpp \
 					LASlib/laswriter_las.cpp \
@@ -57,6 +57,5 @@ SOURCES = LASlib/lasreader_txt.cpp \
 					./writeLAX.cpp \
 					./fast.cpp \
 					./RcppExports.cpp
-
-TEMP1   =  $(SOURCES:.cpp=.o)
-OBJECTS =  $(TEMP1:.c=.o)
+TEMP1   = $(SOURCES:.cpp=.o)
+OBJECTS = $(TEMP1:.c=.o)

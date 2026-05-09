@@ -31,6 +31,7 @@ void RLASstreamer::setinputfiles(CharacterVector ifiles)
 
   lasreadopener.set_merged(true);
   lasreadopener.set_populate_header(true);
+  lasreadopener.set_copc_stream_ordered_by_chunk();
 
   for (int j = 0; j < ifiles.length(); j++)
   {
@@ -209,10 +210,16 @@ void RLASstreamer::initialize()
 
   lasreader = lasreadopener.open();
   header = &lasreader->header;
-  laswaveform13reader = lasreadopener.open_waveform13(&lasreader->header);
 
   if (0 == lasreader || NULL == lasreader)
     stop("LASlib internal error. See message above."); // # nocov
+
+  if (header->point_data_format == 4 ||
+      header->point_data_format == 5 ||
+      header->point_data_format == 9 ||
+      header->point_data_format == 10) {
+    laswaveform13reader = lasreadopener.open_waveform13(&lasreader->header);
+  }
 
   // Initilize the writer if write in file
   if (!inR)
@@ -854,7 +861,7 @@ List RLASstreamer::terminate()
 
     if (nsynthetic > 0)
     {
-      std::string msg = std::string("There are ") + std::to_string(nwithheld)  + std::string(" points flagged 'synthetic'.");
+      std::string msg = std::string("There are ") + std::to_string(nsynthetic)  + std::string(" points flagged 'synthetic'.");
       Rf_warningcall(R_NilValue, "%s", msg.c_str());
     }
 
