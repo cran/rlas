@@ -1,7 +1,7 @@
 8f0e2cd40e05189ec81232da84bd6e1a *COPYING
-c52725bddb519ad82077f2b9fceb5665 *DESCRIPTION
+76418028d85dd72aa2459136500d0b92 *DESCRIPTION
 bfc9da704c7763b9275d6f4100bda1a1 *NAMESPACE
-7360709229898cb99350783d75493ac8 *NEWS.md
+7d2c87c95b0f1ed247af4e5613e6f209 *NEWS.md
 6a18cdc1df6151c321b6e9c16192b42c *R/RcppExports.R
 b30a91dd2758c33f8bf11f36f6d61833 *R/altrep.R
 59acb99a0ddfa2f25b5ca4297ec99dff *R/check_content.r
@@ -133,7 +133,7 @@ ae6dcb62be1ef774c577504322591126 *src/LASzip/bytestreamout_array.hpp
 d0590d0b4e11356c7cd57f283c5ff6c1 *src/LASzip/bytestreamout_file.hpp
 e572961478267dc0d175470639a6f363 *src/LASzip/bytestreamout_nil.hpp
 2823bfd1ac278089945633cf22fe0247 *src/LASzip/bytestreamout_ostream.hpp
-08cae26c279b3721d9da35acaecc7d44 *src/LASzip/integercompressor.cpp
+97375535acd735ab5e4c0bcd68f65f47 *src/LASzip/integercompressor.cpp
 ea125f282d5574c759681753af0d2ca0 *src/LASzip/integercompressor.hpp
 c5f8ff88509cf712aaba63257a1a2586 *src/LASzip/lasattributer.hpp
 1829fefa9ad3822900668c49d05118a7 *src/LASzip/lascopc.cpp
@@ -151,11 +151,11 @@ e491e8bf941b32f9c57371b8b7494da4 *src/LASzip/lasreaditemcompressed_v1.cpp
 a23c30c4cc1bcbf8c066a49d9c0cb56d *src/LASzip/lasreaditemcompressed_v1.hpp
 a0492317d14cf7f4db7d4f831b32de03 *src/LASzip/lasreaditemcompressed_v2.cpp
 1b27a0cc830745ef7d399311c73bb752 *src/LASzip/lasreaditemcompressed_v2.hpp
-685e31c934124d07f95108d67e84fb4e *src/LASzip/lasreaditemcompressed_v3.cpp
+1884485845aad4bf5ee4af1c4cb5824a *src/LASzip/lasreaditemcompressed_v3.cpp
 1d939712a7fea25ba03d5c94524b41b0 *src/LASzip/lasreaditemcompressed_v3.hpp
 0e17074ac0f4432c132f32c7329e43db *src/LASzip/lasreaditemcompressed_v4.cpp
 873089c158310d2a553cfca73ad637e3 *src/LASzip/lasreaditemcompressed_v4.hpp
-977ca278eebf129174f6aeacf260edc2 *src/LASzip/lasreaditemraw.hpp
+0befd0a91e53e81021fa44e7c0735a47 *src/LASzip/lasreaditemraw.hpp
 eae3edfec238533b9d72a809571b385d *src/LASzip/lasreadpoint.cpp
 1ca4e40421089e7cd4e9c48061c4cfd5 *src/LASzip/lasreadpoint.hpp
 8031380c1533f93ae02546c3c9eb6fc5 *src/LASzip/laswriteitem.hpp
@@ -188,7 +188,7 @@ e3ac021c811cc246a5d237fff0d5afa3 *src/readLAS.cpp
 13815165687ac32fdb8f87de36e2a1f6 *src/readheader.cpp
 88a64d196eb4e833171ca649ad44d2b5 *src/rlasextrabytesattributes.cpp
 f1353ad2bb3a40177b7810c458774e56 *src/rlasextrabytesattributes.h
-c3eae82cd8bd73b6a1613847b1e978d4 *src/rlasstreamer.cpp
+7afcb57d38a7428e743430159506655a *src/rlasstreamer.cpp
 3b44e6952f8d19cf78b16495823f1249 *src/rlasstreamer.h
 c49bb4ef5668f35e3b59bc88d70da611 *src/writeLAS.cpp
 a330769fd74c8e028e1421f966008683 *src/writeLAX.cpp
