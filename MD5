@@ -1,7 +1,7 @@
 8f0e2cd40e05189ec81232da84bd6e1a *COPYING
-c280a5904c715beb1ac8bf96f140f3c0 *DESCRIPTION
+d80d67a8319e517d91b721d0cc473b2e *DESCRIPTION
 bfc9da704c7763b9275d6f4100bda1a1 *NAMESPACE
-fe9023ba4aa776b6db56239fa531ac01 *NEWS.md
+4d48a2566a10c468cec91037779ebb86 *NEWS.md
 6a18cdc1df6151c321b6e9c16192b42c *R/RcppExports.R
 b30a91dd2758c33f8bf11f36f6d61833 *R/altrep.R
 59acb99a0ddfa2f25b5ca4297ec99dff *R/check_content.r
@@ -36,7 +36,6 @@ e498b2cef03b770038103c78189ed972 *inst/tinytest/test-header_tools.R
 77f343a441ea0295c11eb58de14e583f *inst/tinytest/test-readlas.R
 2b09ba068752c985b018eb6593636388 *inst/tinytest/test-readlas14.R
 a59bd79a5e41e6dfeda8a5cff7f6492e *inst/tinytest/test-readlascopc.R
-977ef9cd3b072b726840abfda6917663 *inst/tinytest/test-remote.R
 05554026e5f03df9916b81e9b2598dbf *inst/tinytest/test-writelas.R
 9c40811d7e653399a37adbcca1021d9a *inst/tinytest/test_altrep-serialization.R
 51ce24af0b68a50b5c992d1b200c9a12 *inst/tinytest/test_altrep.R
@@ -133,7 +132,7 @@ ae6dcb62be1ef774c577504322591126 *src/LASzip/bytestreamout_array.hpp
 d0590d0b4e11356c7cd57f283c5ff6c1 *src/LASzip/bytestreamout_file.hpp
 e572961478267dc0d175470639a6f363 *src/LASzip/bytestreamout_nil.hpp
 2823bfd1ac278089945633cf22fe0247 *src/LASzip/bytestreamout_ostream.hpp
-97375535acd735ab5e4c0bcd68f65f47 *src/LASzip/integercompressor.cpp
+08cae26c279b3721d9da35acaecc7d44 *src/LASzip/integercompressor.cpp
 ea125f282d5574c759681753af0d2ca0 *src/LASzip/integercompressor.hpp
 c5f8ff88509cf712aaba63257a1a2586 *src/LASzip/lasattributer.hpp
 1829fefa9ad3822900668c49d05118a7 *src/LASzip/lascopc.cpp
@@ -151,11 +150,11 @@ e491e8bf941b32f9c57371b8b7494da4 *src/LASzip/lasreaditemcompressed_v1.cpp
 a23c30c4cc1bcbf8c066a49d9c0cb56d *src/LASzip/lasreaditemcompressed_v1.hpp
 a0492317d14cf7f4db7d4f831b32de03 *src/LASzip/lasreaditemcompressed_v2.cpp
 1b27a0cc830745ef7d399311c73bb752 *src/LASzip/lasreaditemcompressed_v2.hpp
-1884485845aad4bf5ee4af1c4cb5824a *src/LASzip/lasreaditemcompressed_v3.cpp
+685e31c934124d07f95108d67e84fb4e *src/LASzip/lasreaditemcompressed_v3.cpp
 1d939712a7fea25ba03d5c94524b41b0 *src/LASzip/lasreaditemcompressed_v3.hpp
-b5d0e35d92d65c202ccb240537406bfb *src/LASzip/lasreaditemcompressed_v4.cpp
+0e17074ac0f4432c132f32c7329e43db *src/LASzip/lasreaditemcompressed_v4.cpp
 873089c158310d2a553cfca73ad637e3 *src/LASzip/lasreaditemcompressed_v4.hpp
-0befd0a91e53e81021fa44e7c0735a47 *src/LASzip/lasreaditemraw.hpp
+977ca278eebf129174f6aeacf260edc2 *src/LASzip/lasreaditemraw.hpp
 eae3edfec238533b9d72a809571b385d *src/LASzip/lasreadpoint.cpp
 1ca4e40421089e7cd4e9c48061c4cfd5 *src/LASzip/lasreadpoint.hpp
 8031380c1533f93ae02546c3c9eb6fc5 *src/LASzip/laswriteitem.hpp
@@ -163,9 +162,9 @@ eae3edfec238533b9d72a809571b385d *src/LASzip/lasreadpoint.cpp
 8be655579982afbb0ff63384ee32e3a8 *src/LASzip/laswriteitemcompressed_v1.hpp
 adf7ea630040f364f60820d706e4c495 *src/LASzip/laswriteitemcompressed_v2.cpp
 225653a46ab94e2b25c12413ab4ba39d *src/LASzip/laswriteitemcompressed_v2.hpp
-f2b891bf30f6b7dc8d5ad6864aa71bb2 *src/LASzip/laswriteitemcompressed_v3.cpp
+db38a4d2e8721d2ea1984aa88b60574e *src/LASzip/laswriteitemcompressed_v3.cpp
 dd693e96a0c38e2e98f319514aab54d4 *src/LASzip/laswriteitemcompressed_v3.hpp
-45177356f8e7e8d3c1ebf5b36ed34579 *src/LASzip/laswriteitemcompressed_v4.cpp
+fb13369fdf2a6cf000f4315d02c50e6c *src/LASzip/laswriteitemcompressed_v4.cpp
 63eb625fa1338a73d82a46aa81c3f638 *src/LASzip/laswriteitemcompressed_v4.hpp
 ab1fe5dad057e937da71ee17d6b3d8b2 *src/LASzip/laswriteitemraw.hpp
 92671b462dae186dd7a8df87ee929671 *src/LASzip/laswritepoint.cpp
