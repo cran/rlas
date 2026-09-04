@@ -38,6 +38,9 @@ header_add_extrabytes_manual(
 \item{NA_value}{numeric or integer. NA is not a valid value. At writing time it will be replaced by
 this value that will be considered as NA. NULL if not relevant.}
 }
+\value{
+A list containing the metadata required to write a las file.
+}
 \description{
 Functions that update a header to describe Extra Bytes Attributes according to the
 \href{https://community.asprs.org/leadership-restricted/leadership-content/public-documents/standards}{LAS specifications}
@@ -65,9 +68,9 @@ lasheader = header_add_extrabytes(lasheader, data$treeID, "treeID", "An id for e
 lasheader[["Variable Length Records"]]
 }
 \seealso{
-Other header_tools: 
+Other header_tools:
 \code{\link{crs_tools}},
-\code{\link{fwf_interpreter}()},
+\code{\link[=fwf_interpreter]{fwf_interpreter()}},
 \code{\link{public_header_block_tools}}
 }
 \concept{header_tools}

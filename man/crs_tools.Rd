@@ -26,14 +26,19 @@ find_epsg_position(header)
 
 \item{WKT}{string. A string of an WKT OGC CS}
 }
+\value{
+\code{header_get_epsg()} returns an integer with the EPSG code. 0 if not registered.
+\code{header_get_wktcs()} returns a string with the WKT CRS. Empty if not registered. \code{header_set_*}
+functions return an updated list containing the metadata required to write a las file.
+}
 \description{
 Functions that update a header to describe coordinates reference system according to the
 \href{https://community.asprs.org/leadership-restricted/leadership-content/public-documents/standards}{LAS specifications}
 }
 \seealso{
-Other header_tools: 
+Other header_tools:
 \code{\link{extra_bytes_attribute_tools}},
-\code{\link{fwf_interpreter}()},
+\code{\link[=fwf_interpreter]{fwf_interpreter()}},
 \code{\link{public_header_block_tools}}
 }
 \concept{header_tools}
